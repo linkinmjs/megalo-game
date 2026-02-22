@@ -41,7 +41,7 @@ scenes/
 │   ├── ashtray.tscn                 # Cenicero (hereda obstacle_base)
 │   └── bottle.tscn                  # Frasco (hereda obstacle_base)
 ├── world/
-│   ├── parallax_world.tscn          # ParallaxBackground con capas
+│   ├── parallax_world.tscn          # ParallaxBackground con capas (fondo + frontal)
 │   └── obstacle_spawner.tscn        # Nodo generador de obstáculos
 └── effects/
     ├── rain_cloud.tscn              # Nube con sistema de partículas de lluvia
@@ -94,7 +94,7 @@ assets/
 
 - [ ] T005 Implementar `game_manager.gd` con señales: `event_director(event_name)`, `background_change()`, `wind_toggled(active)`, `rain_toggled(active)`, `birds_toggled(active)`
 - [ ] T006 Crear `scripts/director/director_controller.gd`: escucha F1–F5, emite señales hacia GameManager
-- [ ] T007 Crear `scenes/world/parallax_world.tscn` con `ParallaxBackground` y 3 `ParallaxLayer` vacías (sky, mid, near)
+- [ ] T007 Crear `scenes/world/parallax_world.tscn` con `ParallaxBackground` y 4 `ParallaxLayer`: `sky_far` (z=-2), `clouds_mid` (z=-1), `elements_front` (z=1). El jugador vive en z=0, de modo que `elements_front` se renderiza por delante de él.
 - [ ] T008 Crear `scripts/world/parallax_manager.gd`: controla velocidad de scroll, carga texturas desde `assets/backgrounds/`
 - [ ] T009 Añadir `Camera2D` estática a `main.tscn` (fija, sin seguimiento)
 - [ ] T010 Añadir `CanvasLayer` al final del árbol de `main.tscn` para el shader VHS
@@ -112,15 +112,52 @@ assets/
 
 ### Implementación para User Story 1
 
-- [ ] T012 [US1] Crear `scenes/player/balloon.tscn`: nodo raíz `CharacterBody2D`, con `Sprite2D` (placeholder), `CollisionShape2D` (cápsula), y `CPUParticles2D` para el mechero
+- [ ] T012 [US1] Crear `scenes/player/balloon.tscn` con la siguiente jerarquía:
+  ```
+  CharacterBody2D  (balloon_root)
+  ├── Sprite2D          "balloon_sprite"   ← sprite del globo aerostático
+  ├── Node2D            "skull_pivot"      ← punto de cuelgue (en el borde inferior del globo)
+  │   └── Sprite2D      "skull_sprite"    ← calavera steampunk con parlante
+  ├── CollisionShape2D                    ← cápsula que cubre globo + calavera
+  └── CPUParticles2D    "burner_flame"    ← mechero (debajo del globo, arriba del skull_pivot)
+  ```
+  El `skull_pivot` se posiciona en el borde inferior del globo. La `skull_sprite` tiene un offset Y positivo (cuelga hacia abajo desde el pivot).
+
 - [ ] T013 [US1] Crear `scripts/player/balloon_controller.gd` con:
-  - Variables exportadas: `gravity`, `burner_force`, `lateral_speed`, `screen_margin`
+  - Variables exportadas de física: `gravity`, `burner_force`, `lateral_speed`, `screen_margin`, `top_overflow`
+  - Variables exportadas de inflado del globo:
+    - `balloon_inflate_scale: float = 1.06` — escala máxima del sprite del globo cuando el quemador está activo (rango recomendado: 1.03–1.10)
+    - `balloon_inflate_speed: float = 3.0` — velocidad de transición de inflado/desinflado (lerp factor)
+  - **Lógica de inflado** en `_physics_process(delta)` — solo sobre `balloon_sprite`, nunca sobre el nodo raíz:
+    ```
+    var target_scale = balloon_inflate_scale if burner_active else 1.0
+    var current = balloon_sprite.scale.x
+    var new_scale = lerp(current, target_scale, balloon_inflate_speed * delta)
+    balloon_sprite.scale = Vector2(new_scale, new_scale)
+    ```
+    El `CollisionShape2D` y la `skull_sprite` permanecen sin cambios.
+  - Variables exportadas de comportamiento visual del cráneo:
+    - `skull_sway_factor: float = 0.08` — qué tanto responde la calavera al movimiento lateral del globo (rango recomendado: 0.05–0.15)
+    - `skull_sway_damping: float = 8.0` — velocidad con la que la calavera vuelve al centro (alto = más rígido, menos baile)
+    - `skull_vertical_response: float = 0.04` — respuesta vertical de la calavera ante aceleración vertical del globo
   - `_physics_process(delta)`: aplicar gravedad, mechero (Input), movimiento lateral
-  - Clamp de posición dentro de los límites de la ventana (`get_viewport_rect()`)
-  - Señal `burner_activated` y `burner_deactivated` para efectos visuales
+  - Límites laterales e inferior: clamp duro
+  - Límite superior: soft limit con `top_overflow`
+  - **Lógica de sway de la calavera** (sin spring, solo lerp):
+    ```
+    var target_offset_x = -velocity.x * skull_sway_factor
+    var target_offset_y = -velocity.y * skull_vertical_response
+    skull_pivot.position = skull_pivot.position.lerp(
+        Vector2(target_offset_x, skull_pivot.position.y + target_offset_y),
+        skull_sway_damping * delta
+    )
+    ```
+    El efecto es de "arrastre" puro: la calavera va en dirección opuesta al movimiento (lag) y vuelve al centro rápido. No oscila.
+  - Señales `burner_activated` y `burner_deactivated` para efectos visuales
+
 - [ ] T014 [US1] Conectar partículas del mechero a las señales `burner_activated/deactivated`
 - [ ] T015 [US1] Añadir instancia de `balloon.tscn` a `main.tscn`
-- [ ] T016 [US1] Implementar función `apply_knockback(direction: Vector2, force: float)` en `balloon_controller.gd`
+- [ ] T016 [US1] Implementar función `apply_knockback(direction: Vector2, force: float)` en `balloon_controller.gd`. El knockback afecta la velocidad del `CharacterBody2D` (el globo); la calavera lo seguirá automáticamente por el sistema de sway.
 
 **Checkpoint**: El globo sube, baja, se mueve lateral, no sale de pantalla y tiene partículas de mechero.
 
@@ -138,7 +175,7 @@ assets/
 - [ ] T018 [US3] Implementar `next_background()` con `Tween` para cross-fade suave (1.5 segundos)
 - [ ] T019 [US3] Conectar señal `background_change` de `GameManager` a `parallax_manager.next_background()`
 - [ ] T020 [US3] Crear sprites placeholder de colores sólidos para los 3 fondos iniciales en `assets/backgrounds/` (se reemplazarán con arte final)
-- [ ] T021 [US3] Configurar velocidades de scroll por capa: sky_far=0.2, clouds_mid=0.5, near=1.0
+- [ ] T021 [US3] Configurar velocidades de scroll y z-index por capa: `sky_far` (scroll=0.2, z=-2), `clouds_mid` (scroll=0.5, z=-1), `elements_front` (scroll=1.2, z=1). El jugador tiene z=0 por defecto — `elements_front` queda visualmente delante de él.
 
 **Checkpoint**: Fondo con parallax visible, F1 cambia el fondo con fade.
 
@@ -174,7 +211,7 @@ assets/
 
 ### Implementación para User Story 4
 
-- [ ] T031 [US4] Crear `scripts/effects/rain_cloud.gd`: toggle ON/OFF con `Tween` de aparición, `CPUParticles2D` de lluvia, área de efecto que aplica fuerza downward al globo si está debajo
+- [ ] T031 [US4] Crear `scripts/effects/rain_cloud.gd`: toggle ON/OFF con `Tween` de aparición; en `_process(delta)` seguir la posición X del jugador con `lerp` lento (ej. factor 0.8–1.5) para un movimiento torpe con retraso; `CPUParticles2D` de lluvia; área de efecto que aplica fuerza downward al globo si está debajo
 - [ ] T032 [US4] Crear `scenes/effects/rain_cloud.tscn`: `Node2D` + `Sprite2D` nube placeholder + `CPUParticles2D` lluvia + `Area2D` de efecto
 - [ ] T033 [US4] Crear `scripts/effects/wind_effect.gd`: toggle ON/OFF, `CPUParticles2D` de viento, fuerza lateral aplicada al globo vía señal a `balloon_controller`
 - [ ] T034 [US4] Crear `scenes/effects/wind_particles.tscn`: `CPUParticles2D` configurado para partículas de viento horizontal

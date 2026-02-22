@@ -41,6 +41,21 @@ El jugador controla un globo aerostático que flota en un mundo con scroll later
    - **When** el jugador intenta moverlo más allá del límite
    - **Then** el globo no puede salir de los límites visibles de la pantalla
 
+5. **Scenario**: Inflado del globo con el quemador activo
+   - **Given** el quemador está apagado y el globo tiene su tamaño normal
+   - **When** el jugador activa el quemador y lo mantiene presionado
+   - **Then** el sprite del globo crece suavemente hasta un tamaño máximo levemente mayor (no más del 8% del tamaño original), transmitiendo la sensación de que el globo se está inflando con el calor
+   - **When** el jugador suelta el quemador
+   - **Then** el sprite del globo vuelve suavemente a su tamaño original
+   - **Then** la calavera y el collision shape NO cambian de tamaño — solo el sprite visual del globo se escala
+
+6. **Scenario**: Movimiento relativo calavera–globo (comportamiento pendular)
+   - **Given** el globo está en movimiento lateral
+   - **When** el jugador mueve el globo hacia la derecha
+   - **Then** la calavera se desplaza levemente hacia la izquierda respecto al globo (arrastre), como si colgara de una cuerda, y luego vuelve al centro suavemente cuando el movimiento cesa
+   - **Then** el desplazamiento lateral de la calavera es visiblemente menor que el del globo — la calavera no "baila" ni oscila de un lado al otro; simplemente muestra un retraso amortiguado
+   - **Then** cuando el globo sube o baja rápido, la calavera tiene un leve desplazamiento vertical complementario (sube un poco al frenar la subida, baja un poco al frenar la bajada) pero menos pronunciado que el lateral
+
 ---
 
 ### User Story 2 — Obstáculos / "recuerdos" (Priority: P2)
@@ -70,14 +85,14 @@ Objetos abstractos que representan recuerdos (cenicero, frasco, etc.) aparecen m
 
 4. **Scenario**: Feedback visual en colisión
    - **Given** se produce una colisión
-   - **When** el globo recibe el knockback
+   - **When** el globo recibe el knockback o genera algún efecto en la pantalla
    - **Then** se reproduce una animación de squish/stretch en el globo
 
 ---
 
 ### User Story 3 — Parallax background y atmósfera visual (Priority: P2)
 
-El fondo tiene múltiples capas de parallax con diferentes velocidades de scroll, creando sensación de profundidad. Incluye cielo, nubes y elementos cercanos.
+El fondo tiene múltiples capas de parallax con diferentes velocidades de scroll, creando sensación de profundidad. Incluye cielo, nubes y elementos cercanos. El player se encuentra en la segunda capa del parallax, es decir que hay un parallax más antes del player.
 
 **Why this priority**: El aspecto visual es fundamental para el videoclip. El parallax le da vida al mundo.
 
@@ -115,7 +130,7 @@ El operador puede triggerear eventos visuales y atmosféricos durante la grabaci
 1. **Scenario**: Toggle nube de lluvia (F2)
    - **Given** el juego está corriendo
    - **When** el director presiona F2
-   - **Then** aparece una nube que comienza a llover y el efecto de lluvia molesta levemente al globo (empuje hacia abajo)
+   - **Then** aparece una nube que comienza a llover siguiendo la player de manera torpe y el efecto de lluvia molesta levemente al globo (empuje hacia abajo)
    - **When** el director presiona F2 nuevamente
    - **Then** la nube y la lluvia desaparecen gradualmente
 
@@ -164,7 +179,7 @@ La canción suena durante el juego. El director controla manualmente los eventos
 
 ### Edge Cases
 
-- ¿Qué pasa si el globo llega al borde superior e intenta seguir subiendo? → Se detiene en el límite superior, sin rebotar bruscamente.
+- ¿Qué pasa si el globo llega al borde superior e intenta seguir subiendo? → Puede subir un poco más y desaparecer de la pantalla. Pero no subir infinitamente
 - ¿Qué pasa si varios obstáculos colisionan con el globo al mismo tiempo? → Cada uno aplica su knockback independientemente; el globo puede recibir múltiples impulsos pero nunca sale de pantalla.
 - ¿Qué pasa si el director presiona F1 pero solo hay un fondo cargado? → El fondo se queda igual, sin error.
 - ¿Qué pasa si no hay archivo de audio en assets/audio/? → El juego funciona normalmente sin sonido (no crashea).
@@ -180,14 +195,14 @@ La canción suena durante el juego. El director controla manualmente los eventos
 - **FR-002**: El globo DEBE responder a la tecla de mechero (Espacio/W/↑) subiendo gradualmente con aceleración.
 - **FR-003**: El globo DEBE descender por gravedad cuando no se presiona la tecla de mechero.
 - **FR-004**: El globo DEBE moverse lateralmente con las teclas A/D o flechas izquierda/derecha.
-- **FR-005**: El globo NO DEBE poder salir de los límites visibles de la pantalla en ninguna dirección.
+- **FR-005**: El globo NO DEBE poder salir de los límites visibles de la pantalla por los bordes laterales, inferior ni superior de forma indefinida. El borde superior permite una salida leve (el globo puede desaparecer parcialmente) antes de frenar.
 - **FR-006**: El sistema DEBE generar obstáculos ("recuerdos") de forma automática durante el juego.
 - **FR-007**: Los obstáculos DEBEN moverse horizontalmente y desaparecer al salir de pantalla.
 - **FR-008**: Los obstáculos DEBEN aplicar un impulso (knockback) al globo al colisionar, sin eliminarlo.
 - **FR-009**: El juego DEBE mostrar un fondo con scroll lateral continuo y efecto parallax multicapa.
 - **FR-010**: El sistema DEBE soportar múltiples fondos intercambiables en tiempo real mediante la tecla F1.
 - **FR-011**: El cambio de fondo DEBE realizarse con una transición suave (fade).
-- **FR-012**: El sistema de Director DEBE activar/desactivar una nube de lluvia con la tecla F2.
+- **FR-012**: El sistema de Director DEBE activar/desactivar una nube de lluvia con la tecla F2. La nube DEBE seguir al player de manera torpe (con retraso e inercia) mientras esté activa.
 - **FR-013**: El sistema de Director DEBE activar/desactivar un efecto de viento con la tecla F3.
 - **FR-014**: El sistema de Director DEBE activar/desactivar una bandada de pájaros con la tecla F4.
 - **FR-015**: El sistema de Director DEBE permitir el spawn manual de un obstáculo con la tecla F5.
@@ -199,7 +214,7 @@ La canción suena durante el juego. El director controla manualmente los eventos
 
 ### Key Entities
 
-- **Globo (Player)**: El personaje controlado por el jugador. Tiene física (gravedad, mechero), puede recibir knockback y tiene animaciones de squish/stretch.
+- **Globo (Player)**: El personaje controlado por el jugador. Está compuesto por **dos sprites independientes**: el globo aerostático en la parte superior y una calavera steampunk con parlante en la boca colgando debajo. La calavera se conecta al globo como un péndulo amortiguado — sigue el movimiento del globo con retraso y un sway lateral suave pero limitado (ver detalles en US1 Scenario 5). Tiene física (gravedad, mechero), puede recibir knockback y tiene animaciones de squish/stretch.
 - **Obstáculo (Obstacle)**: Objeto que atraviesa la pantalla horizontalmente. Tiene dirección, velocidad y fuerza de knockback. Subtipos: Cenicero, Frasco, (extensible).
 - **Fondo (Background)**: Recurso visual compuesto por múltiples capas parallax. Intercambiable en tiempo real.
 - **Evento de Director (DirectorEvent)**: Acción triggereada por el operador vía tecla. Activa/desactiva sistemas del juego (lluvia, viento, pájaros).
