@@ -13,6 +13,15 @@ config_version=5
 config/name="megalo-claude"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://icon.svg"
+run/main_scene="res://scenes/menus/main_menu.tscn"
+
+[audio]
+
+default_bus_layout="res://default_bus_layout.tres"
+
+[autoload]
+
+GameManager="*res://scripts/autoloads/game_manager.gd"
 
 [physics]
 

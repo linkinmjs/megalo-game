@@ -282,6 +282,38 @@ Durante el gameplay el jugador puede pausar el juego. La música hace un fade ou
 
 ---
 
+### User Story 9 — Localización (Inglés, Español, Portugués) (Priority: P3)
+
+El juego soporta tres idiomas. El jugador selecciona el idioma desde Settings y el cambio se aplica inmediatamente en toda la UI, sin reiniciar. Los textos de gameplay son mínimos, por lo que la implementación debe ser simple.
+
+**Why this priority**: El juego está orientado a un videoclip que puede tener audiencia en múltiples idiomas. No es core, pero suma profesionalismo.
+
+**Independent Test**: En Settings, cambiar el idioma a Inglés y verificar que todos los textos de menús cambian al idioma seleccionado. Cambiar a Portugués y verificar lo mismo.
+
+**Acceptance Scenarios**:
+
+1. **Scenario**: Selector de idioma en Settings
+   - **Given** el jugador está en la pantalla de Settings
+   - **When** observa los controles disponibles
+   - **Then** ve un selector de idioma (OptionButton) con las opciones: Español, English, Português
+
+2. **Scenario**: Cambio de idioma en tiempo real
+   - **Given** el idioma actual es Español
+   - **When** el jugador selecciona "English" en el selector
+   - **Then** todos los textos visibles de la UI cambian al inglés inmediatamente, sin recargar la escena
+
+3. **Scenario**: Persistencia del idioma
+   - **Given** el jugador seleccionó "English" en una sesión anterior
+   - **When** cierra y vuelve a abrir el juego
+   - **Then** el juego carga en inglés
+
+4. **Scenario**: Idioma por defecto
+   - **Given** es la primera vez que se ejecuta el juego (sin settings.cfg)
+   - **When** la aplicación carga
+   - **Then** el idioma es Español
+
+---
+
 ### Edge Cases
 
 - ¿Qué pasa si el globo llega al borde superior e intenta seguir subiendo? → Puede subir un poco más y desaparecer de la pantalla. Pero no subir infinitamente
@@ -292,6 +324,8 @@ Durante el gameplay el jugador puede pausar el juego. La música hace un fade ou
 - ¿Qué pasa si el jugador presiona Escape durante el fade out de la pausa? → El fade se cancela y el juego reanuda inmediatamente.
 - ¿Qué pasa si se accede a Settings desde pausa y se cambia el volumen de música? → El cambio no afecta el gameplay (la música ya está pausada); al reanudar se escucha con el nuevo volumen.
 - ¿Qué pasa si no hay archivo de ambientación en el menú? → El menú funciona sin sonido (no crashea).
+- ¿Qué pasa si el archivo de traducciones no existe o falta una clave? → Godot muestra la clave en bruto (ej. "MENU_PLAY"); no crashea. Las claves faltantes se agregan al CSV y se reimporta.
+- ¿Qué pasa si el jugador cambia de idioma mientras el menú de pausa está abierto? → El cambio se aplica en tiempo real; los textos del panel de pausa se actualizan inmediatamente.
 
 ---
 
@@ -317,7 +351,7 @@ Durante el gameplay el jugador puede pausar el juego. La música hace un fade ou
 - **FR-016**: Los controles del Director NO DEBEN ser visibles en pantalla durante la grabación.
 - **FR-017**: El juego DEBE reproducir automáticamente el archivo de audio al iniciar la partida (no al lanzar la aplicación).
 - **FR-018**: El juego NO DEBE tener sistema de puntuación, vidas ni game over.
-- **FR-019**: El juego DEBE aplicar un efecto visual de tipo VHS (scanlines, aberración cromática) sobre toda la pantalla, incluyendo los menús.
+- **FR-019** *(deferred — polish)*: El juego DEBE aplicar un efecto visual de tipo VHS (scanlines, aberración cromática) sobre toda la pantalla, incluyendo los menús. Actualmente desactivado durante el desarrollo para facilitar la lectura de la UI.
 - **FR-020**: El estilo visual DEBE combinar pixel art, ilustraciones abstractas y efectos ligeramente psicodélicos.
 - **FR-021**: Al lanzar la aplicación DEBE mostrarse un menú de inicio con los botones "Play" y "Settings".
 - **FR-022**: El menú de inicio DEBE reproducir un sonido de ambientación en loop (a definir; por defecto: viento).
@@ -329,6 +363,11 @@ Durante el gameplay el jugador puede pausar el juego. La música hace un fade ou
 - **FR-028**: Al reanudar desde la pausa, la música DEBE retomar desde el mismo punto con un fade in de ~0.5 segundos.
 - **FR-029**: El menú de pausa DEBE ofrecer las opciones: "Reanudar", "Configuración" y "Salir al menú".
 - **FR-030**: La transición entre escenas (inicio → juego, juego → menú) DEBE realizarse con un fade a negro.
+- **FR-031**: El juego DEBE soportar tres idiomas: Español (es), Inglés (en) y Portugués (pt).
+- **FR-032**: El idioma DEBE seleccionarse desde la pantalla de Settings mediante un selector (OptionButton) y aplicarse en tiempo real sin reiniciar el juego.
+- **FR-033**: La preferencia de idioma DEBE persistir entre sesiones (guardada en `user://settings.cfg`).
+- **FR-034**: Al lanzar el juego por primera vez sin configuración previa, el idioma por defecto DEBE ser Español.
+- **FR-035**: Todos los textos visibles de la UI (menús, botones, etiquetas) DEBEN estar traducidos en los tres idiomas.
 
 ### Key Entities
 
@@ -339,6 +378,7 @@ Durante el gameplay el jugador puede pausar el juego. La música hace un fade ou
 - **Menú Principal (MainMenu)**: Pantalla de inicio. Contiene título, botones Play y Settings, y reproduce ambientación sonora.
 - **Settings**: Pantalla de configuración compartida entre el menú principal y la pausa. Controla los buses de audio "Música" y "SFX".
 - **Menú de Pausa (PauseMenu)**: Overlay activado con Escape durante el gameplay. Congela la escena del juego y gestiona el fade de la música.
+- **Sistema de Localización**: Traducciones en CSV (`assets/locale/translations.csv`) con claves para EN, ES y PT. Gestionado por `TranslationServer` de Godot. El idioma activo se setea con `TranslationServer.set_locale()` y se persiste en `settings.cfg`.
 
 ---
 
@@ -351,8 +391,10 @@ Durante el gameplay el jugador puede pausar el juego. La música hace un fade ou
 - **SC-003**: El director puede triggerear todos los eventos definidos (F1–F5) en tiempo real sin interrumpir la ejecución del juego.
 - **SC-004**: Los eventos del Director se activan/desactivan en menos de 0.5 segundos desde la pulsación de tecla.
 - **SC-005**: La transición entre fondos se completa en 1-2 segundos con una animación suave y sin cortes bruscos.
-- **SC-006**: El efecto VHS es visible en toda la pantalla en todo momento durante la ejecución.
+- **SC-006** *(deferred)*: El efecto VHS es visible en toda la pantalla en todo momento durante la ejecución. Actualmente desactivado; se reactivará en fase de polish.
 - **SC-007**: El juego puede ser grabado en pantalla como videoclip durante la reproducción completa de la canción sin modificar el código entre tomas.
 - **SC-008**: El menú de inicio carga en menos de 2 segundos desde el lanzamiento de la aplicación.
 - **SC-009**: El fade out de la música al pausar dura exactamente ~1 segundo; el fade in al reanudar dura ~0.5 segundos.
 - **SC-010**: Al reanudar desde pausa, la música retoma desde el mismo timestamp en que fue pausada (sin salto ni reinicio).
+- **SC-011**: El cambio de idioma en Settings se refleja en toda la UI en menos de 1 frame (sin transición, inmediato).
+- **SC-012**: El juego carga en el idioma guardado en settings.cfg desde el primer frame visible (sin parpadeo en el idioma por defecto).

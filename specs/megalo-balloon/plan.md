@@ -73,54 +73,59 @@ scripts/
 
 assets/
 ├── sprites/                        # Sprites: globo, obstáculos (placeholders PNG)
-├── backgrounds/                    # Fondos por capa (placeholders PNG)
+├── backgrounds/                    # Fondos por capa organizados en sets
 ├── audio/                          # Canción (placeholder — agregar manualmente)
+├── locale/
+│   └── translations.csv            # Traducciones EN/ES/PT en formato CSV de Godot
 └── shaders/
-    └── vhs_effect.gdshader         # Shader VHS: scanlines, chromatic aberration, noise
+    └── vhs_effect.gdshader         # Shader VHS (implementado, desactivado hasta polish)
 ```
 
 **Structure Decision**: Single project. Todo dentro del repositorio Godot, sin sub-proyectos ni workspaces. Los assets de arte son placeholders reemplazables sin cambiar código.
 
 ---
 
-## Phase 1: Setup
+## Phase 1: Setup ✅
 
 **Purpose**: Estructura base del proyecto lista para recibir código.
 
-- [ ] T001 Crear estructura de carpetas (`scenes/`, `scripts/`, `assets/`, `specs/`) — ya completado
-- [ ] T002 Registrar autoload `GameManager` en `project.godot` (`scripts/autoloads/game_manager.gd`)
-- [ ] T003 Crear `scripts/autoloads/game_manager.gd` vacío con clase base y señales globales
-- [ ] T004 Crear `scenes/main.tscn` con nodo raíz `Node2D` y referencias a sub-escenas
+- [x] T001 Crear estructura de carpetas (`scenes/`, `scripts/`, `assets/`, `specs/`)
+- [x] T002 Registrar autoload `GameManager` en `project.godot`
+- [x] T003 Crear `scripts/autoloads/game_manager.gd` con señales globales y transición de escenas
+- [x] T004 Crear `scenes/main.tscn` con nodo raíz `Node2D` y referencias a sub-escenas
 
 ---
 
-## Phase 2: Fundacional — Infraestructura base
+## Phase 2: Fundacional — Infraestructura base ✅
 
 **Purpose**: Sistemas core que deben estar listos antes de cualquier user story.
 
-**⚠️ CRÍTICO**: Ninguna user story puede comenzar hasta completar esta fase.
+- [x] T005 `game_manager.gd` con señales: `event_director`, `background_change`, `wind_toggled`, `rain_toggled`, `birds_toggled`
+- [x] T006 `scripts/director/director_controller.gd`: escucha F1–F5, emite señales hacia GameManager
+- [x] T007 `scenes/world/parallax_world.tscn` con `ParallaxBackground` y capas `SkyFar`, `CloudsMid`, `ElementsFront`
+- [x] T008 `scripts/world/parallax_manager.gd`: scroll automático con `scroll_base_offset`
+- [x] T009 `Camera2D` estática en `main.tscn`
+- [x] T010 Overlay de transición (fade a negro) en `GameManager`
+- [x] T011 `assets/shaders/vhs_effect.gdshader` implementado *(desactivado — ver TODO en game_manager.gd)*
+- [x] T011b `default_bus_layout.tres` con buses `Master`, `Music` y `SFX`
 
-- [ ] T005 Implementar `game_manager.gd` con señales: `event_director(event_name)`, `background_change()`, `wind_toggled(active)`, `rain_toggled(active)`, `birds_toggled(active)`
-- [ ] T006 Crear `scripts/director/director_controller.gd`: escucha F1–F5, emite señales hacia GameManager
-- [ ] T007 Crear `scenes/world/parallax_world.tscn` con `ParallaxBackground` y 4 `ParallaxLayer`: `sky_far` (z=-2), `clouds_mid` (z=-1), `elements_front` (z=1). El jugador vive en z=0, de modo que `elements_front` se renderiza por delante de él.
-- [ ] T008 Crear `scripts/world/parallax_manager.gd`: controla velocidad de scroll, carga texturas desde `assets/backgrounds/`
-- [ ] T009 Añadir `Camera2D` estática a `main.tscn` (fija, sin seguimiento)
-- [ ] T010 Añadir `CanvasLayer` al final del árbol de `main.tscn` para el shader VHS
-- [ ] T011 Crear `assets/shaders/vhs_effect.gdshader` con scanlines, chromatic aberration y noise estático
-
-**Checkpoint**: El juego abre, muestra fondo con scroll, y el shader VHS es visible. Sin gameplay aún.
+**Checkpoint**: ✅ Infraestructura lista. Shader VHS implementado pero desactivado durante desarrollo.
 
 ---
 
-## Phase 3: Sistema de Menús (US6, US7, US8)
+## Phase 3: Sistema de Menús (US6, US7, US8) ✅
 
 **Purpose**: El juego debe verse como un juego real. Menú de inicio, configuración y pausa.
 
-**⚠️ Depende de Phase 2** (GameManager para señales y AudioServer buses).
-
 ### Implementación de Menús
 
-- [ ] T011b Configurar dos buses de audio en Godot (`Project > Audio`): bus `Music` y bus `SFX`, ambos con el bus `Master` como parent. Usar estos buses en todos los `AudioStreamPlayer` correspondientes.
+- [x] T012m `scenes/menus/main_menu.tscn` + `scripts/menus/main_menu.gd`: título, Play, Settings, ambient audio
+- [x] T013m `scenes/menus/settings_menu.tscn` + `scripts/menus/settings_menu.gd`: sliders Music/SFX, persistencia ConfigFile, botón Volver
+- [x] T014m `scenes/menus/pause_menu.tscn` + `scripts/menus/pause_controller.gd`: Escape toggle, fade out/in de música, settings embebido en panel secundario, botón Salir al menú
+- [x] T015m `scripts/world/main_scene.gd`: registra MusicPlayer en GameManager al cargar la escena de juego
+- [x] T016m `project.godot`: escena principal = `main_menu.tscn`, autoload `GameManager`
+
+**Checkpoint**: ✅ Flujo completo menú → juego → pausa funcionando. Pendiente: selector de idioma (Phase 9).
 
 - [ ] T012m [US6] Crear `scenes/menus/main_menu.tscn`:
   - Nodo raíz `Control` (pantalla completa)
@@ -296,15 +301,64 @@ assets/
 
 ---
 
+## Phase 9: User Story 9 — Localización (US9)
+
+**Goal**: Soporte de tres idiomas (ES/EN/PT) con selección en Settings y persistencia.
+
+**Independent Test**: Cambiar idioma en Settings → verificar que todos los textos de menús cambian. Cerrar y reabrir → verificar que el idioma persiste.
+
+### Implementación para User Story 9
+
+- [ ] T046 [US9] Crear `assets/locale/translations.csv` con todas las claves de UI:
+
+  | key | es | en | pt |
+  |-----|----|----|-----|
+  | `MENU_PLAY` | Jugar | Play | Jogar |
+  | `MENU_SETTINGS` | Configuración | Settings | Configurações |
+  | `SETTINGS_TITLE` | Configuración | Settings | Configurações |
+  | `SETTINGS_MUSIC` | Música | Music | Música |
+  | `SETTINGS_SFX` | SFX | SFX | SFX |
+  | `SETTINGS_LANGUAGE` | Idioma | Language | Idioma |
+  | `SETTINGS_BACK` | Volver | Back | Voltar |
+  | `PAUSE_TITLE` | Pausado | Paused | Pausado |
+  | `PAUSE_RESUME` | Reanudar | Resume | Retomar |
+  | `PAUSE_SETTINGS` | Configuración | Settings | Configurações |
+  | `PAUSE_QUIT` | Salir al menú | Back to Menu | Sair ao menu |
+
+- [ ] T047 [US9] Importar `translations.csv` en Godot: `Project Settings > Localization > Translations > Add` → Godot genera `.translation` binarios automáticamente
+
+- [ ] T048 [US9] Actualizar todos los nodos `Label` y `Button` en las tres escenas de menú para usar claves de traducción (ej. `text = "MENU_PLAY"`). Godot auto-traduce si `auto_translate_mode = AUTO_TRANSLATE_MODE_ALWAYS` (default)
+
+- [ ] T049 [US9] Añadir `OptionButton` "Idioma / Language" a `settings_menu.tscn` y al panel embebido en `pause_menu.tscn` con opciones ordenadas: `Español`, `English`, `Português`
+
+- [ ] T050 [US9] Actualizar `settings_menu.gd` y `pause_controller.gd`:
+  ```gdscript
+  const LOCALES := ["es", "en", "pt"]
+
+  func _on_language_changed(index: int) -> void:
+      TranslationServer.set_locale(LOCALES[index])
+      _save_settings()  # guarda locale junto con volúmenes
+  ```
+
+- [ ] T051 [US9] Cargar idioma guardado en `GameManager._ready()` antes de que cargue la primera escena:
+  ```gdscript
+  var cfg := ConfigFile.new()
+  if cfg.load("user://settings.cfg") == OK:
+      TranslationServer.set_locale(cfg.get_value("locale", "language", "es"))
+  ```
+
+**Checkpoint**: Cambiar idioma en Settings actualiza toda la UI en tiempo real. El idioma persiste al cerrar y reabrir el juego.
+
+---
+
 ## Phase N: Polish y Cross-Cutting
 
 **Purpose**: Refinamientos que afectan a múltiples sistemas.
 
-- [ ] T041 Ajustar shader VHS: intensidad configurable vía variable uniform, exportada para ajustar desde el inspector
-- [ ] T042 Revisar feel del globo: ajustar `gravity`, `burner_force`, amortiguación lateral para sensación satisfactoria
-- [ ] T043 Añadir comentarios de documentación en los scripts principales
-- [ ] T044 Verificar que no hay errores en la consola de Godot durante 2 minutos de ejecución
-- [ ] T045 Prueba de grabación completa: ejecutar el juego 2 minutos, triggerear todos los eventos del director, verificar fluidez
+- [ ] T052 Reactivar shader VHS en `game_manager.gd` (descomentar `_setup_vhs_layer()`) y ajustar intensidad con uniforms exportados
+- [ ] T053 Revisar feel del globo: ajustar `gravity`, `burner_force`, amortiguación lateral para sensación satisfactoria
+- [ ] T054 Verificar que no hay errores en la consola de Godot durante 2 minutos de ejecución
+- [ ] T055 Prueba de grabación completa: ejecutar el juego 2 minutos, triggerear todos los eventos del director, verificar fluidez
 
 ---
 
@@ -312,14 +366,15 @@ assets/
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: Sin dependencias — puede comenzar inmediatamente
-- **Fundacional (Phase 2)**: Depende de Phase 1 — BLOQUEA todas las fases siguientes
-- **Menús (Phase 3)**: Depende de Phase 2 (GameManager, AudioServer buses); independiente del gameplay
+- **Setup (Phase 1)**: Sin dependencias ✅
+- **Fundacional (Phase 2)**: Depende de Phase 1 ✅
+- **Menús (Phase 3)**: Depende de Phase 2 ✅
 - **US1 — Globo (Phase 4)**: Depende de Phase 2
 - **US3 — Parallax (Phase 5)**: Depende de Phase 2, independiente de US1
 - **US2 — Obstáculos (Phase 6)**: Depende de US1 (necesita `apply_knockback`)
 - **US4 — Director (Phase 7)**: Depende de Phase 2; los efectos de lluvia/viento se conectan al globo de US1
 - **US5 — Audio (Phase 8)**: Depende de Phase 2; el fade de pausa usa el AudioStreamPlayer de esta fase
+- **Localización (Phase 9)**: Depende de Phase 3 (escenas de menú deben existir); independiente del gameplay
 - **Polish (Phase N)**: Depende de todas las fases anteriores
 
 ### Within Each Phase

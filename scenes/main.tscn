@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/main_scene.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/world/parallax_world.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/menus/pause_menu.tscn" id="3"]
+[ext_resource type="Script" path="res://scripts/director/director_controller.gd" id="4"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, 0)
+zoom = Vector2(1, 1)
+
+[node name="ParallaxWorld" parent="." instance=ExtResource("2")]
+
+[node name="GameWorld" type="Node2D" parent="."]
+
+[node name="Director" type="Node" parent="."]
+script = ExtResource("4")
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
+bus = &"Music"
+
+[node name="PauseMenu" parent="." instance=ExtResource("3")]
