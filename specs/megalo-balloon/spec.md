@@ -177,6 +177,111 @@ La canción suena durante el juego. El director controla manualmente los eventos
 
 ---
 
+### User Story 6 — Menú de inicio (Priority: P2)
+
+Al lanzar el juego el jugador ve una pantalla de inicio con estética coherente con el juego. Desde ahí puede iniciar la partida o acceder a configuración. Un sonido de ambientación acompaña el menú.
+
+**Why this priority**: El juego debe verse como un juego real, no como un prototipo. El menú de inicio es la primera impresión.
+
+**Independent Test**: Lanzar el juego y verificar que aparece el menú, que los botones responden y que el sonido de ambientación se escucha.
+
+**Acceptance Scenarios**:
+
+1. **Scenario**: Pantalla de inicio al lanzar
+   - **Given** el juego se inicia
+   - **When** la aplicación termina de cargar
+   - **Then** se muestra una pantalla de menú con el nombre del juego, un botón "Play" y un botón "Settings"
+   - **Then** el efecto VHS está activo también en el menú
+
+2. **Scenario**: Iniciar partida
+   - **Given** el jugador está en el menú de inicio
+   - **When** presiona el botón "Play"
+   - **Then** se realiza una transición al juego (fade a negro y carga de la escena de juego)
+
+3. **Scenario**: Acceso a Settings
+   - **Given** el jugador está en el menú de inicio
+   - **When** presiona el botón "Settings"
+   - **Then** se muestra la pantalla de configuración
+
+4. **Scenario**: Sonido de ambientación en el menú
+   - **Given** el menú de inicio está visible
+   - **When** no hay ninguna acción del jugador
+   - **Then** se escucha un sonido de ambientación de fondo (a definir: viento u otro), a un volumen suave y en loop
+
+---
+
+### User Story 7 — Pantalla de Settings (Priority: P2)
+
+El jugador puede ajustar el volumen de música y efectos de sonido desde una pantalla de configuración. Dado que el juego en sí no tiene SFX durante el gameplay, estos controles son relevantes principalmente para la experiencia del menú.
+
+**Why this priority**: Necesario para que el juego se vea completo y profesional. Los controles de audio son esperados en cualquier juego.
+
+**Independent Test**: Abrir Settings, mover los sliders y verificar que el volumen del audio del menú cambia en tiempo real.
+
+**Acceptance Scenarios**:
+
+1. **Scenario**: Acceso desde el menú principal
+   - **Given** el jugador está en el menú de inicio
+   - **When** presiona "Settings"
+   - **Then** se muestra una pantalla con controles de volumen para "Música" y "SFX", y un botón para volver
+
+2. **Scenario**: Control de volumen de música
+   - **Given** el jugador está en Settings
+   - **When** mueve el slider de Música
+   - **Then** el volumen de la música de ambientación del menú cambia en tiempo real
+
+3. **Scenario**: Control de volumen de SFX
+   - **Given** el jugador está en Settings
+   - **When** mueve el slider de SFX
+   - **Then** el volumen de efectos de sonido del menú (por ejemplo, clics de botones) cambia en tiempo real
+
+4. **Scenario**: Volver al menú anterior
+   - **Given** el jugador está en Settings
+   - **When** presiona el botón "Volver" (o Back)
+   - **Then** regresa a la pantalla desde donde vino (menú de inicio o pausa)
+
+5. **Scenario**: Settings accesible desde pausa
+   - **Given** el juego está pausado y se muestra el menú de pausa
+   - **When** el jugador presiona "Settings"
+   - **Then** se muestra la pantalla de configuración; al volver regresa al menú de pausa
+
+---
+
+### User Story 8 — Menú de pausa (Priority: P2)
+
+Durante el gameplay el jugador puede pausar el juego. La música hace un fade out suave antes de pausarse. Al retomar, la música vuelve desde el mismo punto con un fade in.
+
+**Why this priority**: Refuerza la sensación de juego real y es necesario para la comodidad del operador durante las sesiones de grabación.
+
+**Independent Test**: Durante el gameplay presionar Escape, verificar que el juego se pausa y la música hace fade. Presionar Resume y verificar que la música retoma con fade in desde el mismo punto.
+
+**Acceptance Scenarios**:
+
+1. **Scenario**: Pausar el juego
+   - **Given** el juego está corriendo
+   - **When** el jugador presiona Escape
+   - **Then** el gameplay se detiene (el globo deja de moverse, los obstáculos se congelan)
+   - **Then** la música hace un fade out de aproximadamente 1 segundo y luego se pausa
+   - **Then** aparece el menú de pausa con las opciones: "Reanudar", "Configuración" y "Salir al menú"
+
+2. **Scenario**: Reanudar desde la pausa
+   - **Given** el juego está pausado
+   - **When** el jugador selecciona "Reanudar" o presiona Escape nuevamente
+   - **Then** el gameplay se reanuda
+   - **Then** la música retoma desde el mismo punto en que fue pausada, con un fade in de aproximadamente 0.5 segundos
+
+3. **Scenario**: Acceder a Settings desde la pausa
+   - **Given** el menú de pausa está visible
+   - **When** el jugador selecciona "Configuración"
+   - **Then** se muestra la pantalla de Settings; al volver regresa al menú de pausa (el juego sigue pausado)
+
+4. **Scenario**: Salir al menú principal desde la pausa
+   - **Given** el menú de pausa está visible
+   - **When** el jugador selecciona "Salir al menú"
+   - **Then** el juego descarta la sesión actual y regresa al menú de inicio con una transición (fade a negro)
+
+---
+
 ### Edge Cases
 
 - ¿Qué pasa si el globo llega al borde superior e intenta seguir subiendo? → Puede subir un poco más y desaparecer de la pantalla. Pero no subir infinitamente
@@ -184,6 +289,9 @@ La canción suena durante el juego. El director controla manualmente los eventos
 - ¿Qué pasa si el director presiona F1 pero solo hay un fondo cargado? → El fondo se queda igual, sin error.
 - ¿Qué pasa si no hay archivo de audio en assets/audio/? → El juego funciona normalmente sin sonido (no crashea).
 - ¿Qué pasa si la nube de lluvia ya está activa y se presiona F2 de nuevo antes de que termine de aparecer? → Se inicia el proceso de desaparición inmediatamente.
+- ¿Qué pasa si el jugador presiona Escape durante el fade out de la pausa? → El fade se cancela y el juego reanuda inmediatamente.
+- ¿Qué pasa si se accede a Settings desde pausa y se cambia el volumen de música? → El cambio no afecta el gameplay (la música ya está pausada); al reanudar se escucha con el nuevo volumen.
+- ¿Qué pasa si no hay archivo de ambientación en el menú? → El menú funciona sin sonido (no crashea).
 
 ---
 
@@ -207,17 +315,30 @@ La canción suena durante el juego. El director controla manualmente los eventos
 - **FR-014**: El sistema de Director DEBE activar/desactivar una bandada de pájaros con la tecla F4.
 - **FR-015**: El sistema de Director DEBE permitir el spawn manual de un obstáculo con la tecla F5.
 - **FR-016**: Los controles del Director NO DEBEN ser visibles en pantalla durante la grabación.
-- **FR-017**: El juego DEBE reproducir automáticamente el archivo de audio al iniciar.
+- **FR-017**: El juego DEBE reproducir automáticamente el archivo de audio al iniciar la partida (no al lanzar la aplicación).
 - **FR-018**: El juego NO DEBE tener sistema de puntuación, vidas ni game over.
-- **FR-019**: El juego DEBE aplicar un efecto visual de tipo VHS (scanlines, aberración cromática) sobre toda la pantalla.
+- **FR-019**: El juego DEBE aplicar un efecto visual de tipo VHS (scanlines, aberración cromática) sobre toda la pantalla, incluyendo los menús.
 - **FR-020**: El estilo visual DEBE combinar pixel art, ilustraciones abstractas y efectos ligeramente psicodélicos.
+- **FR-021**: Al lanzar la aplicación DEBE mostrarse un menú de inicio con los botones "Play" y "Settings".
+- **FR-022**: El menú de inicio DEBE reproducir un sonido de ambientación en loop (a definir; por defecto: viento).
+- **FR-023**: La pantalla de Settings DEBE exponer controles de volumen para dos buses de audio: "Música" y "SFX".
+- **FR-024**: Los cambios de volumen en Settings DEBEN aplicarse en tiempo real sin necesidad de confirmar.
+- **FR-025**: La pantalla de Settings DEBE ser accesible tanto desde el menú de inicio como desde el menú de pausa.
+- **FR-026**: El juego DEBE pausarse al presionar Escape durante el gameplay.
+- **FR-027**: Al pausar, la música DEBE hacer un fade out de ~1 segundo antes de detenerse.
+- **FR-028**: Al reanudar desde la pausa, la música DEBE retomar desde el mismo punto con un fade in de ~0.5 segundos.
+- **FR-029**: El menú de pausa DEBE ofrecer las opciones: "Reanudar", "Configuración" y "Salir al menú".
+- **FR-030**: La transición entre escenas (inicio → juego, juego → menú) DEBE realizarse con un fade a negro.
 
 ### Key Entities
 
-- **Globo (Player)**: El personaje controlado por el jugador. Está compuesto por **dos sprites independientes**: el globo aerostático en la parte superior y una calavera steampunk con parlante en la boca colgando debajo. La calavera se conecta al globo como un péndulo amortiguado — sigue el movimiento del globo con retraso y un sway lateral suave pero limitado (ver detalles en US1 Scenario 5). Tiene física (gravedad, mechero), puede recibir knockback y tiene animaciones de squish/stretch.
+- **Globo (Player)**: El personaje controlado por el jugador. Está compuesto por **dos sprites independientes**: el globo aerostático en la parte superior y una calavera steampunk con parlante en la boca colgando debajo. La calavera se conecta al globo como un péndulo amortiguado — sigue el movimiento del globo con retraso y un sway lateral suave pero limitado (ver detalles en US1 Scenario 6). Tiene física (gravedad, mechero), puede recibir knockback y tiene animaciones de squish/stretch.
 - **Obstáculo (Obstacle)**: Objeto que atraviesa la pantalla horizontalmente. Tiene dirección, velocidad y fuerza de knockback. Subtipos: Cenicero, Frasco, (extensible).
 - **Fondo (Background)**: Recurso visual compuesto por múltiples capas parallax. Intercambiable en tiempo real.
 - **Evento de Director (DirectorEvent)**: Acción triggereada por el operador vía tecla. Activa/desactiva sistemas del juego (lluvia, viento, pájaros).
+- **Menú Principal (MainMenu)**: Pantalla de inicio. Contiene título, botones Play y Settings, y reproduce ambientación sonora.
+- **Settings**: Pantalla de configuración compartida entre el menú principal y la pausa. Controla los buses de audio "Música" y "SFX".
+- **Menú de Pausa (PauseMenu)**: Overlay activado con Escape durante el gameplay. Congela la escena del juego y gestiona el fade de la música.
 
 ---
 
@@ -232,3 +353,6 @@ La canción suena durante el juego. El director controla manualmente los eventos
 - **SC-005**: La transición entre fondos se completa en 1-2 segundos con una animación suave y sin cortes bruscos.
 - **SC-006**: El efecto VHS es visible en toda la pantalla en todo momento durante la ejecución.
 - **SC-007**: El juego puede ser grabado en pantalla como videoclip durante la reproducción completa de la canción sin modificar el código entre tomas.
+- **SC-008**: El menú de inicio carga en menos de 2 segundos desde el lanzamiento de la aplicación.
+- **SC-009**: El fade out de la música al pausar dura exactamente ~1 segundo; el fade in al reanudar dura ~0.5 segundos.
+- **SC-010**: Al reanudar desde pausa, la música retoma desde el mismo timestamp en que fue pausada (sin salto ni reinicio).

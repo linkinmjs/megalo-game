@@ -33,7 +33,11 @@ specs/megalo-balloon/
 
 ```text
 scenes/
-├── main.tscn                        # Escena raíz del juego
+├── main.tscn                        # Escena raíz del juego (gameplay)
+├── menus/
+│   ├── main_menu.tscn               # Pantalla de inicio: título, Play, Settings
+│   ├── settings_menu.tscn           # Sliders de volumen Música y SFX
+│   └── pause_menu.tscn              # Overlay de pausa: Reanudar, Settings, Salir
 ├── player/
 │   └── balloon.tscn                 # Globo aerostático (CharacterBody2D)
 ├── obstacles/
@@ -49,11 +53,15 @@ scenes/
 
 scripts/
 ├── autoloads/
-│   └── game_manager.gd              # Singleton: estado global, señales globales
+│   └── game_manager.gd              # Singleton: estado global, señales globales, gestión de escenas
 ├── director/
 │   └── director_controller.gd      # Teclas F1-F5, emite señales de eventos
+├── menus/
+│   ├── main_menu.gd                 # Lógica de botones, ambient audio del menú
+│   ├── settings_menu.gd             # Bind sliders → AudioServer buses, persistencia con ConfigFile
+│   └── pause_controller.gd         # Escape toggle, fade out/in de música, get_tree().paused
 ├── player/
-│   └── balloon_controller.gd       # Física: mechero, gravedad, movimiento lateral, knockback
+│   └── balloon_controller.gd       # Física: mechero, gravedad, movimiento lateral, knockback, sway
 ├── obstacles/
 │   ├── obstacle_base.gd            # Clase base: velocidad, dirección, knockback
 │   └── obstacle_spawner.gd         # Spawn pool, cooldown, posición Y aleatoria
@@ -104,7 +112,56 @@ assets/
 
 ---
 
-## Phase 3: User Story 1 — Control del globo aerostático (P1)
+## Phase 3: Sistema de Menús (US6, US7, US8)
+
+**Purpose**: El juego debe verse como un juego real. Menú de inicio, configuración y pausa.
+
+**⚠️ Depende de Phase 2** (GameManager para señales y AudioServer buses).
+
+### Implementación de Menús
+
+- [ ] T011b Configurar dos buses de audio en Godot (`Project > Audio`): bus `Music` y bus `SFX`, ambos con el bus `Master` como parent. Usar estos buses en todos los `AudioStreamPlayer` correspondientes.
+
+- [ ] T012m [US6] Crear `scenes/menus/main_menu.tscn`:
+  - Nodo raíz `Control` (pantalla completa)
+  - `Label` con el nombre del juego
+  - `Button` "Play" y `Button` "Settings"
+  - `AudioStreamPlayer` para el sonido de ambientación del menú (bus: SFX)
+
+- [ ] T013m [US6] Crear `scripts/menus/main_menu.gd`:
+  - Al entrar a la escena: reproducir ambient audio en loop
+  - Botón Play → `GameManager.change_scene("main")` con fade a negro
+  - Botón Settings → `GameManager.change_scene("settings_menu")` pasando "main_menu" como escena de retorno
+
+- [ ] T014m [US7] Crear `scenes/menus/settings_menu.tscn`:
+  - `HSlider` para "Música" (bus Music) y `HSlider` para "SFX" (bus SFX)
+  - `Button` "Volver"
+
+- [ ] T015m [US7] Crear `scripts/menus/settings_menu.gd`:
+  - Bind de cada slider a `AudioServer.set_bus_volume_db(bus_index, linear_to_db(value))`
+  - Al entrar: leer valores actuales de los buses y setear posición inicial de sliders
+  - Persistencia: guardar/cargar volúmenes con `ConfigFile` en `user://settings.cfg`
+  - Botón Volver → regresar a escena de origen (main_menu o pause_menu)
+
+- [ ] T016m [US8] Crear `scenes/menus/pause_menu.tscn`:
+  - `CanvasLayer` (para renderizar sobre el gameplay)
+  - Panel semi-transparente de fondo
+  - `Button` "Reanudar", `Button` "Configuración", `Button` "Salir al menú"
+
+- [ ] T017m [US8] Crear `scripts/menus/pause_controller.gd`:
+  - Escuchar `ui_cancel` (Escape) en `_unhandled_input`
+  - **Pausar**: crear `Tween` que lleva `music_player.volume_db` de 0 a -80 en 1.0s, luego `stream_paused = true` y `get_tree().paused = true`
+  - **Reanudar**: `stream_paused = false`, crear `Tween` que lleva `volume_db` de -80 a 0 en 0.5s, `get_tree().paused = false`
+  - El nodo `pause_controller` debe tener `process_mode = PROCESS_MODE_ALWAYS` para seguir procesando mientras el árbol está pausado
+  - Botón Salir → `get_tree().paused = false`, fade a negro, cargar main_menu
+
+- [ ] T018m Agregar `GameManager.change_scene(scene_name)` como función utilitaria: fade out a negro (`CanvasLayer` + `ColorRect` + `Tween`), cambiar escena, fade in
+
+**Checkpoint**: El juego arranca en el menú de inicio, Play inicia el juego, Settings ajusta el volumen, Escape pausa con fade de música y reanuda correctamente.
+
+---
+
+## Phase 4: User Story 1 — Control del globo aerostático (P1)
 
 **Goal**: El jugador puede controlar el globo con física satisfactoria.
 
@@ -163,7 +220,7 @@ assets/
 
 ---
 
-## Phase 4: User Story 3 — Parallax y fondos (P2)
+## Phase 5: User Story 3 — Parallax y fondos (P2)
 
 **Goal**: El fondo tiene profundidad visual y puede cambiarse con F1.
 
@@ -181,7 +238,7 @@ assets/
 
 ---
 
-## Phase 5: User Story 2 — Obstáculos / recuerdos (P2)
+## Phase 6: User Story 2 — Obstáculos / recuerdos (P2)
 
 **Goal**: Objetos cruzar la pantalla y empujan al globo al contacto.
 
@@ -203,7 +260,7 @@ assets/
 
 ---
 
-## Phase 6: User Story 4 — Sistema de Director (P3)
+## Phase 7: User Story 4 — Sistema de Director (P3)
 
 **Goal**: El operador puede controlar efectos visuales en tiempo real vía teclado.
 
@@ -223,7 +280,7 @@ assets/
 
 ---
 
-## Phase 7: User Story 5 — Audio (P3)
+## Phase 8: User Story 5 — Audio (P3)
 
 **Goal**: La canción suena durante el juego.
 
@@ -256,12 +313,13 @@ assets/
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: Sin dependencias — puede comenzar inmediatamente
-- **Fundacional (Phase 2)**: Depende de Phase 1 — BLOQUEA todas las user stories
-- **US1 — Globo (Phase 3)**: Depende de Phase 2
-- **US3 — Parallax (Phase 4)**: Depende de Phase 2, independiente de US1
-- **US2 — Obstáculos (Phase 5)**: Depende de US1 (necesita `apply_knockback`)
-- **US4 — Director (Phase 6)**: Depende de Phase 2; los efectos de lluvia/viento se conectan al globo de US1
-- **US5 — Audio (Phase 7)**: Depende de Phase 2 únicamente
+- **Fundacional (Phase 2)**: Depende de Phase 1 — BLOQUEA todas las fases siguientes
+- **Menús (Phase 3)**: Depende de Phase 2 (GameManager, AudioServer buses); independiente del gameplay
+- **US1 — Globo (Phase 4)**: Depende de Phase 2
+- **US3 — Parallax (Phase 5)**: Depende de Phase 2, independiente de US1
+- **US2 — Obstáculos (Phase 6)**: Depende de US1 (necesita `apply_knockback`)
+- **US4 — Director (Phase 7)**: Depende de Phase 2; los efectos de lluvia/viento se conectan al globo de US1
+- **US5 — Audio (Phase 8)**: Depende de Phase 2; el fade de pausa usa el AudioStreamPlayer de esta fase
 - **Polish (Phase N)**: Depende de todas las fases anteriores
 
 ### Within Each Phase
