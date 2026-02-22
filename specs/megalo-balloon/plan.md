@@ -166,7 +166,7 @@ assets/
 
 ---
 
-## Phase 4: User Story 1 — Control del globo aerostático (P1)
+## Phase 4: User Story 1 — Control del globo aerostático (P1) ✅
 
 **Goal**: El jugador puede controlar el globo con física satisfactoria.
 
@@ -174,7 +174,7 @@ assets/
 
 ### Implementación para User Story 1
 
-- [ ] T012 [US1] Crear `scenes/player/balloon.tscn` con la siguiente jerarquía:
+- [x] T012 [US1] Crear `scenes/player/balloon.tscn` con la siguiente jerarquía:
   ```
   CharacterBody2D  (balloon_root)
   ├── Sprite2D          "balloon_sprite"   ← sprite del globo aerostático
@@ -185,7 +185,7 @@ assets/
   ```
   El `skull_pivot` se posiciona en el borde inferior del globo. La `skull_sprite` tiene un offset Y positivo (cuelga hacia abajo desde el pivot).
 
-- [ ] T013 [US1] Crear `scripts/player/balloon_controller.gd` con:
+- [x] T013 [US1] Crear `scripts/player/balloon_controller.gd` con:
   - Variables exportadas de física: `gravity`, `burner_force`, `lateral_speed`, `screen_margin`, `top_overflow`
   - Variables exportadas de inflado del globo:
     - `balloon_inflate_scale: float = 1.06` — escala máxima del sprite del globo cuando el quemador está activo (rango recomendado: 1.03–1.10)
@@ -217,9 +217,9 @@ assets/
     El efecto es de "arrastre" puro: la calavera va en dirección opuesta al movimiento (lag) y vuelve al centro rápido. No oscila.
   - Señales `burner_activated` y `burner_deactivated` para efectos visuales
 
-- [ ] T014 [US1] Conectar partículas del mechero a las señales `burner_activated/deactivated`
-- [ ] T015 [US1] Añadir instancia de `balloon.tscn` a `main.tscn`
-- [ ] T016 [US1] Implementar función `apply_knockback(direction: Vector2, force: float)` en `balloon_controller.gd`. El knockback afecta la velocidad del `CharacterBody2D` (el globo); la calavera lo seguirá automáticamente por el sistema de sway.
+- [x] T014 [US1] Partículas del mechero controladas directamente por `_burner_active` en el script (sin señales separadas — simplificación válida)
+- [x] T015 [US1] Instancia de `balloon.tscn` añadida a `main.tscn` dentro de `GameWorld`
+- [x] T016 [US1] `apply_knockback(direction, force)` implementado con squish/stretch en `VisualRoot`
 
 **Checkpoint**: El globo sube, baja, se mueve lateral, no sale de pantalla y tiene partículas de mechero.
 

@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://c1tix0ecb1c7f"]
+
+[ext_resource type="Script" uid="uid://vwm1wbm2025n" path="res://scripts/player/balloon_controller.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://b4jhbxccf28d8" path="res://assets/sprites/globe-8color-outline.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://br5ixprlm5qj2" path="res://assets/sprites/skull-8color-outline.png" id="3"]
+[ext_resource type="Script" path="res://scripts/player/rigging.gd" id="4"]
+
+[sub_resource type="Gradient" id="Gradient_1"]
+colors = PackedColorArray(1, 0.45, 0.05, 1, 1, 0.1, 0, 0)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_qsh5c"]
+radius = 54.0
+
+[node name="Balloon" type="CharacterBody2D" unique_id=1336986121]
+script = ExtResource("1")
+
+[node name="VisualRoot" type="Node2D" parent="." unique_id=1390847147]
+
+[node name="BalloonSprite" type="Sprite2D" parent="VisualRoot" unique_id=1348175412]
+position = Vector2(0, -155)
+texture = ExtResource("2")
+
+[node name="BurnerFlame" type="CPUParticles2D" parent="VisualRoot" unique_id=584335395]
+position = Vector2(0, 30)
+emitting = false
+amount = 24
+lifetime = 0.35
+direction = Vector2(0, -1)
+spread = 18.0
+gravity = Vector2(0, -80)
+initial_velocity_min = 60.0
+initial_velocity_max = 120.0
+scale_amount_min = 0.4
+color_ramp = SubResource("Gradient_1")
+
+[node name="SkullPivot" type="Node2D" parent="VisualRoot" unique_id=1938700463]
+position = Vector2(0, 50)
+
+[node name="SkullSprite" type="Sprite2D" parent="VisualRoot/SkullPivot" unique_id=457642265]
+position = Vector2(0, 75)
+scale = Vector2(0.45, 0.45)
+texture = ExtResource("3")
+
+[node name="Rigging" type="Node2D" parent="VisualRoot" unique_id=542109421]
+script = ExtResource("4")
+
+[node name="Line2D" type="Line2D" parent="VisualRoot/Rigging" unique_id=1105125308]
+width = 1.5
+default_color = Color(0.3, 0.22, 0.12, 0.85)
+points = PackedVector2Array()
+
+[node name="Line2D2" type="Line2D" parent="VisualRoot/Rigging" unique_id=673955055]
+width = 1.5
+default_color = Color(0.3, 0.22, 0.12, 0.85)
+points = PackedVector2Array()
+
+[node name="Line2D3" type="Line2D" parent="VisualRoot/Rigging" unique_id=932716734]
+width = 1.5
+default_color = Color(0.3, 0.22, 0.12, 0.85)
+points = PackedVector2Array()
+
+[node name="Line2D4" type="Line2D" parent="VisualRoot/Rigging" unique_id=2049544850]
+width = 1.5
+default_color = Color(0.3, 0.22, 0.12, 0.85)
+points = PackedVector2Array()
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1306773269]
+position = Vector2(-3, 136)
+shape = SubResource("CircleShape2D_qsh5c")
