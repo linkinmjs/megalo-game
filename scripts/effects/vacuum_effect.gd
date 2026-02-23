@@ -8,18 +8,23 @@ signal suction_force_changed(force: float)
 @export var suction_force:  float = 120.0  ## Fuerza de atracción hacia la izquierda (px/s)
 @export var anim_duration:  float = 0.40   ## Duración del slide de entrada/salida (s)
 
-@onready var _particles:       CPUParticles2D = $SuctionParticles
-@onready var _lines_container: Node2D         = $SuctionLines
+@onready var _particles_container: Node2D = $SuctionParticles
+@onready var _lines_container:     Node2D = $SuctionLines
 
 var _active: bool = false
 var _tween:  Tween = null
-var _suction_lines: Array[Line2D] = []
-var _line_base_points: Array = []  ## puntos base (sin onda) para cada Line2D
+var _suction_lines:  Array[Line2D]       = []
+var _line_base_points: Array             = []  ## puntos base (sin onda)
+var _particles_list: Array[CPUParticles2D] = []
 
 func _ready() -> void:
 	var vp_half_w := get_viewport_rect().size.x * 0.5
 	position = Vector2(-(vp_half_w + 270.0), 0.0)
-	_particles.emitting = false
+	# Recolectar emisores de partículas
+	for child in _particles_container.get_children():
+		if child is CPUParticles2D:
+			child.emitting = false
+			_particles_list.append(child as CPUParticles2D)
 	# Recolectar líneas y guardar sus puntos base para la animación de onda
 	for child in _lines_container.get_children():
 		if child is Line2D:
@@ -53,7 +58,8 @@ func _on_wind_toggled(active: bool) -> void:
 	var target_x := -(vp_half_w - 60.0) if active else -(vp_half_w + 270.0)
 	_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	_tween.tween_property(self, "position:x", target_x, anim_duration)
-	_particles.emitting = active
+	for p in _particles_list:
+		p.emitting = active
 	for line in _suction_lines:
 		line.visible = active
 	suction_force_changed.emit(-suction_force if active else 0.0)
