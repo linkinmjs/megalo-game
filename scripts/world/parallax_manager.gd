@@ -58,11 +58,14 @@ var _layers: Array[ParallaxLayer] = []
 var _sprites_a: Array[Sprite2D] = []
 var _sprites_b: Array[Sprite2D] = []
 
+var _bird_layer: ParallaxLayer = null  ## Capa de pájaros activable por F4
+
 func _ready() -> void:
 	_create_layers()
 	_create_layer_sprites()
 	_load_background(_current_index, _sprites_a)
 	GameManager.background_change.connect(_on_background_change)
+	GameManager.birds_toggled.connect(toggle_birds)
 
 func _process(delta: float) -> void:
 	parallax_bg.scroll_base_offset.x -= scroll_speed * delta
@@ -144,3 +147,40 @@ func _on_fade_complete() -> void:
 
 func _on_background_change() -> void:
 	next_background()
+
+# ── Capa de pájaros (F4) ──────────────────────────────────────────────────────
+## Patrón Phase 5b: capa creada por código, no en tscn. Placeholder con Polygon2D.
+## Reemplazar _make_bird_shape() con AnimatedSprite2D cuando haya assets reales.
+func toggle_birds(active: bool) -> void:
+	if active and _bird_layer == null:
+		_create_bird_layer()
+	elif not active and _bird_layer != null:
+		_bird_layer.queue_free()
+		_bird_layer = null
+
+func _create_bird_layer() -> void:
+	_bird_layer = ParallaxLayer.new()
+	_bird_layer.name = "BirdLayer"
+	_bird_layer.motion_scale = Vector2(2.5, 0.0)
+	_bird_layer.z_index = 1   # delante del player (z=0), detrás del frontal (z=2)
+	_bird_layer.motion_mirroring = Vector2(1280.0, 0.0)
+	parallax_bg.add_child(_bird_layer)
+
+	# 8 pájaros distribuidos dentro del ancho de mirroring, en la franja superior
+	var xs: Array = [0, 160, 300, 480, 580, 750, 900, 1080]
+	var ys: Array = [80, 50, 120, 70, 100, 60, 90, 140]
+	for i in xs.size():
+		var bird := _make_bird_shape()
+		bird.position = Vector2(xs[i], ys[i])
+		_bird_layer.add_child(bird)
+
+func _make_bird_shape() -> Polygon2D:
+	var p := Polygon2D.new()
+	# Silueta de pájaro en vuelo: chevron/V abierta
+	p.polygon = PackedVector2Array([
+		Vector2(-14, 5), Vector2(-7, 0), Vector2(0, -4),
+		Vector2(7, 0), Vector2(14, 5),
+		Vector2(9, 7), Vector2(0, 3), Vector2(-9, 7)
+	])
+	p.color = Color(0.08, 0.08, 0.10, 0.85)
+	return p

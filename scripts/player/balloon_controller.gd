@@ -38,6 +38,9 @@ signal burner_deactivated()
 var _burner_active: bool = false
 var _skull_rest_pos: Vector2
 var _squish_tween: Tween = null
+# Fuerzas externas acumuladas (efectos del Director)
+var _wind_force: float = 0.0   ## Fuerza lateral sostenida (px/s) — set por WindEffect
+var _rain_force: float = 0.0   ## Fuerza hacia abajo (px/s²) — set por RainCloud
 
 func _ready() -> void:
 	_skull_rest_pos = skull_pivot.position
@@ -68,6 +71,8 @@ func _handle_input(delta: float) -> void:
 			burner_flame.emitting = false
 			burner_deactivated.emit()
 
+	# Fuerza adicional de lluvia (downward)
+	velocity.y += _rain_force * delta
 	velocity.y = clamp(velocity.y, -max_vertical_speed, max_vertical_speed)
 
 	# Movimiento lateral: velocidad directa (no acumulada) → frena al soltar
@@ -76,7 +81,8 @@ func _handle_input(delta: float) -> void:
 		lateral = -1.0
 	elif Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
 		lateral = 1.0
-	velocity.x = lateral * lateral_speed
+	# _wind_force se suma al movimiento lateral del jugador
+	velocity.x = lateral * lateral_speed + _wind_force
 
 # ── Límites de pantalla ────────────────────────────────────────────────────────
 ## Coordenadas con cámara DRAG_CENTER: (0,0) = centro del viewport.
@@ -119,6 +125,13 @@ func _update_skull_sway(delta: float) -> void:
 	#              atrás  (vel.x < 0) → rota en sentido antihorario (mira levemente arriba)
 	var target_rot := velocity.x * skull_tilt_factor
 	skull_pivot.rotation = lerpf(skull_pivot.rotation, target_rot, skull_sway_damping * delta)
+
+# ── Fuerzas externas del Director (lluvia / viento) ───────────────────────────
+func receive_wind_force(force: float) -> void:
+	_wind_force = force
+
+func receive_rain_force(force: float) -> void:
+	_rain_force = force
 
 # ── Knockback (llamado por obstáculos) ─────────────────────────────────────────
 func apply_knockback(direction: Vector2, force: float) -> void:

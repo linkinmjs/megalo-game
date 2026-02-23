@@ -333,13 +333,13 @@ BACKGROUND_SETS = [{"textures": [path0, path1, ..., ""]}]  ← índice = slot de
 
 ### Implementación para User Story 4
 
-- [ ] T031 [US4] Crear `scripts/effects/rain_cloud.gd`: toggle ON/OFF con `Tween` de aparición; en `_process(delta)` seguir la posición X del jugador con `lerp` lento (ej. factor 0.8–1.5) para un movimiento torpe con retraso; `CPUParticles2D` de lluvia; área de efecto que aplica fuerza downward al globo si está debajo
-- [ ] T032 [US4] Crear `scenes/effects/rain_cloud.tscn`: `Node2D` + `Sprite2D` nube placeholder + `CPUParticles2D` lluvia + `Area2D` de efecto
-- [ ] T033 [US4] Crear `scripts/effects/wind_effect.gd`: toggle ON/OFF, `CPUParticles2D` de viento, fuerza lateral aplicada al globo vía señal a `balloon_controller`
-- [ ] T034 [US4] Crear `scenes/effects/wind_particles.tscn`: `CPUParticles2D` configurado para partículas de viento horizontal
-- [ ] T035 [US4] Añadir capa de pájaros como `ParallaxLayer` dinámico activable/desactivable con `AnimatedSprite2D`; ⚠️ debe seguir el nuevo patrón de Phase 5b (capa creada por código, no en tscn)
-- [ ] T036 [US4] Conectar señales `rain_toggled`, `wind_toggled`, `birds_toggled` del GameManager a sus efectos correspondientes
-- [ ] T037 [US4] Verificar que F2, F3, F4, F5 funcionan sin UI visible en pantalla
+- [x] T031 [US4] Crear `scripts/effects/rain_cloud.gd`: toggle ON/OFF con `Tween`; sigue al player con lerp (follow_speed=1.2); `CPUParticles2D` de lluvia; `Area2D` que emite señal de fuerza downward al globo
+- [x] T032 [US4] Crear `scenes/effects/rain_cloud.tscn`: `Node2D` + `Polygon2D` nube placeholder + `CPUParticles2D` lluvia + `Area2D` de efecto (RectangleShape2D 250×300 a y+150)
+- [x] T033 [US4] Crear `scripts/effects/wind_effect.gd`: toggle ON/OFF, `CPUParticles2D` de viento, señal `wind_force_changed(force)` al balloon_controller
+- [x] T034 [US4] Crear `scenes/effects/wind_particles.tscn`: `CPUParticles2D` horizontal screen-wide (emission_box, local_coords=false)
+- [x] T035 [US4] Capa de pájaros añadida a `parallax_manager.gd`: `toggle_birds()` crea/destruye `ParallaxLayer` dinámico (motion_scale=2.5, z=1, mirror=1280); 8 siluetas Polygon2D placeholder; conexión a `GameManager.birds_toggled`
+- [x] T036 [US4] Señales cableadas: rain/wind/birds → efectos en sus `_ready()` via GameManager; fuerzas → balloon via `main_scene.gd` (`rain_force_changed → receive_rain_force`, `wind_force_changed → receive_wind_force`)
+- [x] T037 [US4] Verificación: ningún efecto agrega UI visible; todos los toggles F2-F5 son invisibles al stream
 
 **Checkpoint**: Los 4 eventos del director funcionan con toggle correcto.
 

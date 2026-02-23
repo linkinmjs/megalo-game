@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/main_scene.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/world/parallax_world.tscn" id="2"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://scripts/director/director_controller.gd" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/player/balloon.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/world/obstacle_spawner.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/effects/rain_cloud.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/effects/wind_particles.tscn" id="8"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1")
@@ -21,6 +23,10 @@ zoom = Vector2(1, 1)
 [node name="Balloon" parent="GameWorld" instance=ExtResource("5")]
 
 [node name="ObstacleSpawner" parent="GameWorld" instance=ExtResource("6")]
+
+[node name="RainCloud" parent="GameWorld" instance=ExtResource("7")]
+
+[node name="WindEffect" parent="GameWorld" instance=ExtResource("8")]
 
 [node name="Director" type="Node" parent="."]
 script = ExtResource("4")
