@@ -1,7 +1,7 @@
 extends CharacterBody2D
 ## Controlador del globo aerostático (player).
 ## Física de mechero/gravedad, límites de pantalla, inflado del sprite del globo,
-## sway amortiguado de la calavera y knockback con squish/stretch.
+## sway amortiguado de la calavera y knockback con flash de color + freeze de input.
 
 # ── Señales ────────────────────────────────────────────────────────────────────
 signal burner_activated()
@@ -21,6 +21,11 @@ signal burner_deactivated()
 @export var balloon_inflate_scale: float = 1.06  ## Escala máxima al inflar (1.0 = normal)
 @export var balloon_inflate_speed: float = 3.0   ## Velocidad de lerp del inflado
 
+# ── Knockback / Hurt ───────────────────────────────────────────────────────────
+@export_group("Knockback")
+@export var hit_freeze_duration: float = 1.5   ## Duración del freeze total tras un golpe (s)
+@export var hit_launch_duration: float = 0.4   ## Tiempo post-freeze sin control lateral (s)
+
 # ── Sway de la calavera ────────────────────────────────────────────────────────
 @export_group("Skull Sway")
 @export var skull_sway_factor: float      = 0.08   ## Respuesta lateral (bajo = poco sway)
@@ -37,7 +42,11 @@ signal burner_deactivated()
 # ── Estado interno ─────────────────────────────────────────────────────────────
 var _burner_active: bool = false
 var _skull_rest_pos: Vector2
-var _squish_tween: Tween = null
+var _hit_active: bool = false       ## true durante el freeze total tras un golpe
+var _hit_timer: float = 0.0        ## cuenta regresiva del freeze (segundos)
+var _hit_impulse: Vector2 = Vector2.ZERO  ## impulso almacenado, se aplica al terminar el freeze
+var _launch_timer: float = 0.0     ## post-freeze: preserva impulso horizontal unos frames
+var _blink_tween: Tween = null     ## tween de parpadeo durante el freeze
 # Fuerzas externas acumuladas (efectos del Director)
 var _wind_force: float = 0.0   ## Fuerza lateral sostenida (px/s) — set por WindEffect
 var _rain_force: float = 0.0   ## Fuerza hacia abajo (px/s²) — set por RainCloud
@@ -46,14 +55,41 @@ func _ready() -> void:
 	_skull_rest_pos = skull_pivot.position
 
 func _physics_process(delta: float) -> void:
+	var just_released := false
+	if _hit_timer > 0.0:
+		_hit_timer -= delta
+		if _hit_timer <= 0.0:
+			_hit_active = false
+			just_released = true
+	if _launch_timer > 0.0:
+		_launch_timer -= delta
 	_handle_input(delta)
+	# Aplicar el impulso DESPUÉS del input para que no sea sobreescrito en el frame de lanzamiento
+	if just_released:
+		if _blink_tween:
+			_blink_tween.kill()
+			_blink_tween = null
+		visual_root.modulate = Color.WHITE
+		velocity = _hit_impulse
+		_hit_impulse = Vector2.ZERO
+		_launch_timer = hit_launch_duration
 	_apply_screen_limits()
 	move_and_slide()
-	_update_balloon_inflate(delta)
-	_update_skull_sway(delta)
+	if not _hit_active:
+		_update_balloon_inflate(delta)
+		_update_skull_sway(delta)
 
 # ── Input ──────────────────────────────────────────────────────────────────────
 func _handle_input(delta: float) -> void:
+	if _hit_active:
+		# Freeze total: globo y calavera congelados en el aire, sin gravedad ni input
+		velocity = Vector2.ZERO
+		if _burner_active:
+			_burner_active = false
+			burner_flame.emitting = false
+			burner_deactivated.emit()
+		return
+
 	var burner_on := (Input.is_key_pressed(KEY_SPACE)
 		or Input.is_key_pressed(KEY_W)
 		or Input.is_key_pressed(KEY_UP))
@@ -76,13 +112,14 @@ func _handle_input(delta: float) -> void:
 	velocity.y = clamp(velocity.y, -max_vertical_speed, max_vertical_speed)
 
 	# Movimiento lateral: velocidad directa (no acumulada) → frena al soltar
-	var lateral := 0.0
-	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
-		lateral = -1.0
-	elif Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
-		lateral = 1.0
-	# _wind_force se suma al movimiento lateral del jugador
-	velocity.x = lateral * lateral_speed + _wind_force
+	# Durante _launch_timer no se toca velocity.x para que el impulso horizontal se preserve
+	if _launch_timer <= 0.0:
+		var lateral := 0.0
+		if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
+			lateral = -1.0
+		elif Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
+			lateral = 1.0
+		velocity.x = lateral * lateral_speed + _wind_force
 
 # ── Límites de pantalla ────────────────────────────────────────────────────────
 ## Coordenadas con cámara DRAG_CENTER: (0,0) = centro del viewport.
@@ -135,17 +172,19 @@ func receive_rain_force(force: float) -> void:
 
 # ── Knockback (llamado por obstáculos) ─────────────────────────────────────────
 func apply_knockback(direction: Vector2, force: float) -> void:
-	velocity += direction.normalized() * force
-	_play_squish()
+	# Guardar el impulso — se aplica al terminar el freeze, no inmediatamente
+	_hit_impulse = direction.normalized() * force
+	_play_hit_effect()
 
-func _play_squish() -> void:
-	if _squish_tween:
-		_squish_tween.kill()
-	# Squish en visual_root para afectar ambos sprites sin tocar CollisionShape2D
-	visual_root.scale = Vector2.ONE
-	_squish_tween = create_tween()
-	_squish_tween.set_ease(Tween.EASE_OUT)
-	_squish_tween.set_trans(Tween.TRANS_BACK)
-	_squish_tween.tween_property(visual_root, "scale", Vector2(1.3, 0.7), 0.10)
-	_squish_tween.tween_property(visual_root, "scale", Vector2(0.88, 1.12), 0.10)
-	_squish_tween.tween_property(visual_root, "scale", Vector2(1.0, 1.0), 0.18)
+func _play_hit_effect() -> void:
+	# Cancelar parpadeo previo si llega un segundo golpe durante el freeze
+	if _blink_tween:
+		_blink_tween.kill()
+	# Parpadeo en loop rojo↔blanco durante todo el freeze (~4 ciclos/s)
+	visual_root.modulate = Color(1.0, 0.15, 0.15)
+	_blink_tween = create_tween().set_loops()
+	_blink_tween.tween_property(visual_root, "modulate", Color.WHITE, 0.12)
+	_blink_tween.tween_property(visual_root, "modulate", Color(1.0, 0.15, 0.15), 0.12)
+	# Freeze total de 1.5s — al expirar se aplica el impulso en _physics_process
+	_hit_active = true
+	_hit_timer = hit_freeze_duration

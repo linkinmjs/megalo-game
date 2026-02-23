@@ -8,7 +8,7 @@ signal hit_balloon
 
 @export var speed: float          = 150.0   ## Velocidad de desplazamiento (px/s)
 @export var direction: float      = 1.0     ## +1 = izq→der, -1 = der→izq
-@export var knockback_force: float = 350.0  ## Fuerza del impulso aplicado al globo
+@export var knockback_force: float = 650.0  ## Fuerza del impulso aplicado al globo
 
 const _DESTROY_X: float = 750.0  ## Se destruye cuando |position.x| supera este valor
 

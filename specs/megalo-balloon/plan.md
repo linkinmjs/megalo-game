@@ -411,6 +411,53 @@ BACKGROUND_SETS = [{"textures": [path0, path1, ..., ""]}]  ← índice = slot de
 
 ---
 
+## Phase A: Nueva animación de golpe / hurt (specs/hurt-animation/spec.md)
+
+**Goal**: Reemplazar squish/stretch por flash de color rojo + freeze de input + impulso moderado.
+
+**Independent Test**: Un obstáculo golpea al globo → se pone rojo ~0.4s, no responde al input ~0.3s, no cambia de tamaño.
+
+- [x] T-HURT-001 `scripts/player/balloon_controller.gd`: agregar `_hit_active: bool = false`; eliminar `_squish_tween: Tween`
+- [x] T-HURT-002 `scripts/player/balloon_controller.gd`: en `_handle_input()`, agregar al inicio — si `_hit_active`: aplicar solo gravedad y `return`
+- [x] T-HURT-003 `scripts/player/balloon_controller.gd`: agregar `_play_hit_effect()` — flash rojo en `visual_root.modulate` + fade a blanco en 0.4s + timer de 0.3s que desactiva `_hit_active`
+- [x] T-HURT-004 `scripts/player/balloon_controller.gd`: actualizar `apply_knockback()` — reemplazar llamada `_play_squish()` por `_play_hit_effect()`
+- [x] T-HURT-005 `scripts/player/balloon_controller.gd`: eliminar función `_play_squish()` completa
+
+**Checkpoint**: Colisión con obstáculo → globo rojo → fade a blanco; sin cambio de escala; input bloqueado ~0.3s.
+
+---
+
+## Phase B: Aspiradora — reemplaza efecto de viento F3 (specs/aspiradora/spec.md)
+
+**Goal**: Reemplazar WindEffect por VacuumEffect: aspiradora que asoma desde la izquierda y succiona al globo.
+
+**Independent Test**: F3 → aspiradora entra desde borde izquierdo, globo deriva hacia la izquierda, partículas van hacia la izquierda. F3 → sale todo.
+
+- [ ] T-ASP-001 `scripts/effects/vacuum_effect.gd`: clase VacuumEffect — toggle ON/OFF via `wind_toggled`, Tween de posición (entrada/salida desde borde izq), emite `suction_force_changed` con valor negativo (atracción)
+- [ ] T-ASP-002 `scenes/effects/vacuum_effect.tscn`: Node2D + Polygon2D placeholder (cuerpo aspiradora) + CPUParticles2D (partículas que van hacia la izquierda, `direction=(-1,0)`)
+- [ ] T-ASP-003 `scenes/main.tscn`: reemplazar instancia `WindEffect` (wind_particles.tscn) por `VacuumEffect` (vacuum_effect.tscn)
+- [ ] T-ASP-004 `scripts/world/main_scene.gd`: cambiar `@onready wind_effect` → `vacuum_effect`; reconectar `suction_force_changed` → `balloon.receive_wind_force`
+- [ ] T-ASP-005 Eliminar `scenes/effects/wind_particles.tscn` y `scripts/effects/wind_effect.gd` (deprecated)
+
+**Checkpoint**: F3 activa aspiradora con visual + succión hacia la izquierda + partículas. F3 desactiva todo.
+
+---
+
+## Phase C: Pájaros marioneta — animación entrada/salida F4 (specs/pajaros-marioneta/spec.md)
+
+**Goal**: Reemplazar aparición instantánea de pájaros por descenso/ascenso animado con hilo visible por encima de cada pájaro.
+
+**Independent Test**: F4 → pájaros bajan desde arriba con animación suave, hilo visible encima de cada uno, se desplazan horizontalmente. F4 → suben y desaparecen.
+
+- [ ] T-BIRD-001 `scripts/effects/birds_controller.gd`: clase BirdsController — toggle via `birds_toggled`, Tween de descenso/ascenso del contenedor de pájaros, `_process` para scroll horizontal con wraparound, `_make_bird_marionette()` que crea Polygon2D (silueta) + Line2D (hilo de 700px hacia arriba)
+- [ ] T-BIRD-002 `scenes/effects/birds_controller.tscn`: Node2D raíz con script (sin hijos — se crean dinámicamente)
+- [ ] T-BIRD-003 `scenes/main.tscn`: añadir instancia `BirdsController` en `GameWorld`
+- [ ] T-BIRD-004 `scripts/world/parallax_manager.gd`: eliminar `_bird_layer`, `toggle_birds()`, `_create_bird_layer()`, `_make_bird_shape()` y la conexión `birds_toggled` en `_ready()`
+
+**Checkpoint**: F4 → pájaros descienden animados con hilos. F4 → ascienden. Sin rastros de la lógica anterior en parallax_manager.
+
+---
+
 ## Phase N: Polish y Cross-Cutting
 
 **Purpose**: Refinamientos que afectan a múltiples sistemas.
