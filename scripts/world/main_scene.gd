@@ -5,7 +5,7 @@ extends Node2D
 @onready var music_player: AudioStreamPlayer = $MusicPlayer
 @onready var balloon:      Node2D            = $GameWorld/Balloon
 @onready var rain_cloud:   RainCloud         = $GameWorld/RainCloud
-@onready var wind_effect:  WindEffect        = $GameWorld/WindEffect
+@onready var vacuum_effect: VacuumEffect     = $GameWorld/VacuumEffect
 
 func _ready() -> void:
 	GameManager.music_player = music_player
@@ -16,7 +16,7 @@ func _ready() -> void:
 
 	# Cablear fuerzas de efectos → globo via señales
 	rain_cloud.rain_force_changed.connect(balloon.receive_rain_force)
-	wind_effect.wind_force_changed.connect(balloon.receive_wind_force)
+	vacuum_effect.suction_force_changed.connect(balloon.receive_wind_force)
 
 func _load_music() -> void:
 	var dir := DirAccess.open("res://assets/audio/")

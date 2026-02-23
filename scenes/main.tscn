@@ -7,7 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/player/balloon.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://scenes/world/obstacle_spawner.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/effects/rain_cloud.tscn" id="7"]
-[ext_resource type="PackedScene" path="res://scenes/effects/wind_particles.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/effects/vacuum_effect.tscn" id="8"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1")
@@ -26,7 +26,7 @@ zoom = Vector2(1, 1)
 
 [node name="RainCloud" parent="GameWorld" instance=ExtResource("7")]
 
-[node name="WindEffect" parent="GameWorld" instance=ExtResource("8")]
+[node name="VacuumEffect" parent="GameWorld" instance=ExtResource("8")]
 
 [node name="Director" type="Node" parent="."]
 script = ExtResource("4")

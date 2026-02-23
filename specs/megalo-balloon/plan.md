@@ -433,11 +433,11 @@ BACKGROUND_SETS = [{"textures": [path0, path1, ..., ""]}]  ← índice = slot de
 
 **Independent Test**: F3 → aspiradora entra desde borde izquierdo, globo deriva hacia la izquierda, partículas van hacia la izquierda. F3 → sale todo.
 
-- [ ] T-ASP-001 `scripts/effects/vacuum_effect.gd`: clase VacuumEffect — toggle ON/OFF via `wind_toggled`, Tween de posición (entrada/salida desde borde izq), emite `suction_force_changed` con valor negativo (atracción)
-- [ ] T-ASP-002 `scenes/effects/vacuum_effect.tscn`: Node2D + Polygon2D placeholder (cuerpo aspiradora) + CPUParticles2D (partículas que van hacia la izquierda, `direction=(-1,0)`)
-- [ ] T-ASP-003 `scenes/main.tscn`: reemplazar instancia `WindEffect` (wind_particles.tscn) por `VacuumEffect` (vacuum_effect.tscn)
-- [ ] T-ASP-004 `scripts/world/main_scene.gd`: cambiar `@onready wind_effect` → `vacuum_effect`; reconectar `suction_force_changed` → `balloon.receive_wind_force`
-- [ ] T-ASP-005 Eliminar `scenes/effects/wind_particles.tscn` y `scripts/effects/wind_effect.gd` (deprecated)
+- [x] T-ASP-001 `scripts/effects/vacuum_effect.gd`: clase VacuumEffect — toggle ON/OFF via `wind_toggled`, Tween de posición (entrada/salida desde borde izq), emite `suction_force_changed` con valor negativo (atracción)
+- [x] T-ASP-002 `scenes/effects/vacuum_effect.tscn`: Node2D + Polygon2D placeholder (cuerpo aspiradora) + CPUParticles2D (partículas que van hacia la izquierda, `direction=(-1,0)`)
+- [x] T-ASP-003 `scenes/main.tscn`: reemplazar instancia `WindEffect` (wind_particles.tscn) por `VacuumEffect` (vacuum_effect.tscn)
+- [x] T-ASP-004 `scripts/world/main_scene.gd`: cambiar `@onready wind_effect` → `vacuum_effect`; reconectar `suction_force_changed` → `balloon.receive_wind_force`
+- [x] T-ASP-005 Eliminar `scenes/effects/wind_particles.tscn` y `scripts/effects/wind_effect.gd` (deprecated)
 
 **Checkpoint**: F3 activa aspiradora con visual + succión hacia la izquierda + partículas. F3 desactiva todo.
 

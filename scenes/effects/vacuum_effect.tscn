@@ -1,0 +1,101 @@
+[gd_scene load_steps=2 format=3 uid="uid://vacuum_effect"]
+
+[ext_resource type="Script" path="res://scripts/effects/vacuum_effect.gd" id="1"]
+
+[node name="VacuumEffect" type="Node2D"]
+script = ExtResource("1")
+
+; ── Cuerpo principal (C-shape con boca abierta hacia la derecha) ────────────
+[node name="VacuumBody" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(
+	0, -150,
+	-30, -185,
+	-100, -205,
+	-200, -195,
+	-280, -150,
+	-310, -70,
+	-320, 0,
+	-310, 70,
+	-280, 150,
+	-200, 195,
+	-100, 205,
+	-30, 185,
+	0, 150,
+	-20, 100,
+	-45, 30,
+	-50, 0,
+	-45, -30,
+	-20, -100
+)
+color = Color(0.20, 0.13, 0.07, 1)
+
+; ── Labio superior (prong que enmarca la boca arriba) ────────────────────────
+[node name="UpperLip" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(
+	0, -150,
+	75, -138,
+	98, -162,
+	78, -195,
+	-10, -192,
+	-30, -185
+)
+color = Color(0.30, 0.20, 0.10, 1)
+
+; ── Labio inferior (prong que enmarca la boca abajo) ─────────────────────────
+[node name="LowerLip" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(
+	0, 150,
+	75, 138,
+	98, 162,
+	78, 195,
+	-10, 192,
+	-30, 185
+)
+color = Color(0.30, 0.20, 0.10, 1)
+
+; ── Líneas de succión (onduladas vía script) ──────────────────────────────────
+[node name="SuctionLines" type="Node2D" parent="."]
+
+[node name="Line1" type="Line2D" parent="SuctionLines"]
+points = PackedVector2Array(80, -90, 250, -102, 450, -122, 660, -152, 920, -178)
+width = 4.5
+default_color = Color(0.55, 0.82, 1.0, 0.55)
+
+[node name="Line2" type="Line2D" parent="SuctionLines"]
+points = PackedVector2Array(80, -38, 250, -43, 450, -52, 660, -63, 920, -72)
+width = 4.5
+default_color = Color(0.55, 0.82, 1.0, 0.55)
+
+[node name="Line3" type="Line2D" parent="SuctionLines"]
+points = PackedVector2Array(80, 0, 250, 0, 450, 4, 660, 7, 920, 9)
+width = 5.0
+default_color = Color(0.55, 0.82, 1.0, 0.60)
+
+[node name="Line4" type="Line2D" parent="SuctionLines"]
+points = PackedVector2Array(80, 38, 250, 43, 450, 52, 660, 63, 920, 72)
+width = 4.5
+default_color = Color(0.55, 0.82, 1.0, 0.55)
+
+[node name="Line5" type="Line2D" parent="SuctionLines"]
+points = PackedVector2Array(80, 90, 250, 102, 450, 122, 660, 152, 920, 178)
+width = 4.5
+default_color = Color(0.55, 0.82, 1.0, 0.55)
+
+; ── Partículas de succión (fluyen de derecha a izquierda) ─────────────────────
+[node name="SuctionParticles" type="CPUParticles2D" parent="."]
+position = Vector2(700, 0)
+emitting = false
+amount = 150
+lifetime = 1.2
+lifetime_randomness = 0.3
+local_coords = false
+emission_shape = 3
+emission_box_extents = Vector2(420, 340)
+direction = Vector2(-1, 0)
+spread = 15.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 350.0
+initial_velocity_max = 600.0
+scale_amount_min = 1.5
+scale_amount_max = 4.0
+color = Color(0.70, 0.88, 1.0, 0.65)
