@@ -17,9 +17,13 @@ var settings_return_scene: String = "main_menu"
 
 # ── VHS — uniforms ajustables desde el Inspector ───────────────────────────────
 @export_group("VHS")
-@export var vhs_scanline_strength:     float = 0.12  ## Intensidad de scanlines (0–1)
-@export var vhs_chromatic_aberration:  float = 0.003 ## Separación RGB (0–0.02)
-@export var vhs_noise_strength:        float = 0.04  ## Ruido estático (0–1)
+@export var vhs_effect_intensity:   float = 0.7    ## Intensidad global (0=off, 1=máximo)
+@export var vhs_glitch_frequency:   float = 1.0    ## Pulsos de interferencia por segundo
+@export var vhs_glitch_strength:    float = 0.010  ## Desplazamiento del jitter horizontal
+@export var vhs_chromatic_base:     float = 0.0008 ## Aberración cromática base (siempre)
+@export var vhs_chromatic_spike:    float = 0.006  ## Aberración extra durante interferencias
+@export var vhs_noise_strength:     float = 0.025  ## Grano estático (bajo = sutil)
+@export var vhs_tape_wave:          float = 0.0015 ## Drift horizontal de cinta (siempre)
 
 # ── Rutas de escenas ───────────────────────────────────────────────────────────
 const SCENES: Dictionary = {
@@ -56,9 +60,13 @@ func _setup_vhs_layer() -> void:
 	if shader:
 		var mat := ShaderMaterial.new()
 		mat.shader = shader
-		mat.set_shader_parameter("scanline_strength",    vhs_scanline_strength)
-		mat.set_shader_parameter("chromatic_aberration", vhs_chromatic_aberration)
-		mat.set_shader_parameter("noise_strength",       vhs_noise_strength)
+		mat.set_shader_parameter("effect_intensity",   vhs_effect_intensity)
+		mat.set_shader_parameter("glitch_frequency",   vhs_glitch_frequency)
+		mat.set_shader_parameter("glitch_strength",    vhs_glitch_strength)
+		mat.set_shader_parameter("chromatic_base",     vhs_chromatic_base)
+		mat.set_shader_parameter("chromatic_spike",    vhs_chromatic_spike)
+		mat.set_shader_parameter("noise_strength",     vhs_noise_strength)
+		mat.set_shader_parameter("tape_wave",          vhs_tape_wave)
 		_vhs_rect.material = mat
 
 # ── Overlay de transición ──────────────────────────────────────────────────────
