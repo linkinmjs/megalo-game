@@ -241,16 +241,65 @@ assets/
 
 **Checkpoint**: Fondo con parallax visible, F1 cambia el fondo con fade.
 
-> ⚠️ **BUG ABIERTO (2026-02-22):** El fondo aparece solo en la mitad superior de pantalla.
-> La mitad inferior queda gris (color de fondo de Godot).
-> Intentos: `stretch_mode=canvas_items` y `stretch_mode=viewport` — ninguno resolvió.
-> Hipótesis: `get_viewport_rect()` en `_ready()` devuelve tamaño incorrecto antes de que
-> el viewport esté completamente inicializado.
-> **Próximos pasos a probar:**
-> 1. Diferir inicialización al primer frame con flag `_initialized` en `_process()`
-> 2. Usar `ProjectSettings.get_setting("display/window/size/viewport_height")` como fallback
-> 3. Agregar `print(get_viewport_rect())` en `_ready()` para diagnosticar el valor real
-> **Archivos:** `scripts/world/parallax_manager.gd`, `scenes/world/parallax_world.tscn`
+> ✅ **BUG RESUELTO (2026-02-22):** Las texturas eran 576×324px (45% del viewport 1280×720).
+> Sin escalado, los sprites cubrían solo el 45% superior de la pantalla.
+> **Fix:** en `_load_background()` se escala cada sprite por `vp_h / tex_h` (~2.22×) y se
+> actualiza `motion_mirroring` al ancho escalado (`tex_w * scale_factor = 1280px`) para
+> que las copias del tiling se posicionen sin costura.
+
+> ⚠️ **NOTA (2026-02-22):** Las tareas T007 y T021 serán parcialmente reemplazadas por
+> Phase 5b. T007 creó las capas hardcodeadas en la escena (SkyFar/CloudsMid/ElementsFront);
+> Phase 5b las moverá a código dinámico. T021 configuró scroll/z-index en la escena;
+> Phase 5b los pasa a `LAYER_CONFIGS`.
+
+---
+
+## Phase 5b: Parallax — N capas con soporte frontal (US3 — FR-036 a FR-040)
+
+**Goal**: Refactorizar el parallax para soportar cualquier número de capas configurables por set. Las capas con `z_index > 0` se renderizan delante del player (vegetación, niebla), creando inmersión visual.
+
+**Prerequisite**: Phase 5 completada (✅)
+
+**Independent Test**: Ejecutar el juego con un set que incluya textura en el slot frontal → verificar que elementos aparecen delante del globo. Presionar F1 → verificar que todas las capas (incluyendo la frontal) transicionan juntas.
+
+### Diseño técnico
+
+**Árbol de nodos (post-refactor):**
+```
+ParallaxWorld (Node2D)  ← parallax_manager.gd
+└── ParallaxBackground
+    ├── ParallaxLayer_0   ← creado dinámicamente, z=-2, scroll_x=0.2  (fondo lejano)
+    ├── ParallaxLayer_1   ← creado dinámicamente, z=-1, scroll_x=0.5  (fondo medio)
+    ├── ParallaxLayer_2   ← creado dinámicamente, z=0,  scroll_x=1.0  (fondo cercano)
+    └── ParallaxLayer_N   ← creado dinámicamente, z=2,  scroll_x=1.5  (frontal, delante player)
+```
+
+**Cambio de datos en `parallax_manager.gd`:**
+```
+# Antes (3 claves fijas):
+BACKGROUND_SETS = [{"far": path, "mid": path, "front": path}]
+
+# Después (N slots por índice):
+LAYER_CONFIGS = [{"scroll_x": 0.2, "z_index": -2}, ...]   ← nuevo, slots globales
+BACKGROUND_SETS = [{"textures": [path0, path1, ..., ""]}]  ← índice = slot de LAYER_CONFIGS
+```
+
+**Señales:** sin cambios. `background_change` → `next_background()` sigue igual.
+
+**@exports:** sin cambios. `scroll_speed` y `fade_duration` no se modifican.
+
+### Implementación
+
+- [x] T056 [US3] Agregar constante `LAYER_CONFIGS` en `parallax_manager.gd`: `Array` de dicts `{"scroll_x": float, "z_index": int}`, uno por slot de capa; sustituye a la config hardcodeada de SkyFar/CloudsMid/ElementsFront → `scripts/world/parallax_manager.gd`
+- [x] T057 [US3] Reemplazar refs `@onready` (`sky_far`, `clouds_mid`, `elements_front`) por función `_create_layers()` que instancia un `ParallaxLayer` por cada entrada de `LAYER_CONFIGS`, configura `motion_scale` y `z_index`, y lo agrega como hijo de `parallax_bg` → `scripts/world/parallax_manager.gd`
+- [x] T058 [US3] Refactorizar formato de `BACKGROUND_SETS`: cambiar de dict con claves fijas `{"far", "mid", "front"}` a dict `{"textures": Array[String]}` donde el índice del array mapea al slot correspondiente en `LAYER_CONFIGS` → `scripts/world/parallax_manager.gd`
+- [x] T059 [US3] Actualizar `_load_background()`: iterar sobre `LAYER_CONFIGS.size()` slots; si el set no define textura para ese slot (array más corto o string vacío `""`) → poner sprite invisible (`modulate.a = 0`, `texture = null`); si define textura → cargar con la misma lógica de escala existente → `scripts/world/parallax_manager.gd`
+- [x] T060 [US3] Eliminar nodos hijos hardcodeados (`SkyFar`, `CloudsMid`, `ElementsFront`) del `ParallaxBackground` en `parallax_world.tscn`; dejar el nodo vacío (los hijos los crea el script en `_ready()`) → `scenes/world/parallax_world.tscn`
+- [x] T061 [US3] Actualizar los datos de `BACKGROUND_SETS` al nuevo formato `{"textures": [...]}` con los paths reales existentes; añadir al menos un set que incluya una textura en el slot frontal (z > 0) para validar la feature visualmente → `scripts/world/parallax_manager.gd`
+
+**Checkpoint**: ✅ Abrir `main.tscn` → F5 → verificar que el fondo tiene múltiples capas con distintas velocidades. Usar un set con capa frontal → verificar que elementos semi-transparentes aparecen delante del globo. Presionar F1 → verificar que todas las capas transicionan suavemente.
+
+> ✅ **Implementado (2026-02-23):** 4 slots dinámicos (z: -2, -1, 0, +2). sky_clouds/set_01 y set_03 usan las 4 capas incluyendo la frontal (delante del globo). post_apocalypse/set_01 usa 3 capas (sin frontal). Nodos hardcodeados eliminados de parallax_world.tscn.
 
 ---
 
@@ -288,7 +337,7 @@ assets/
 - [ ] T032 [US4] Crear `scenes/effects/rain_cloud.tscn`: `Node2D` + `Sprite2D` nube placeholder + `CPUParticles2D` lluvia + `Area2D` de efecto
 - [ ] T033 [US4] Crear `scripts/effects/wind_effect.gd`: toggle ON/OFF, `CPUParticles2D` de viento, fuerza lateral aplicada al globo vía señal a `balloon_controller`
 - [ ] T034 [US4] Crear `scenes/effects/wind_particles.tscn`: `CPUParticles2D` configurado para partículas de viento horizontal
-- [ ] T035 [US4] Añadir capa de pájaros en `parallax_world.tscn`: `ParallaxLayer` con `AnimatedSprite2D` o instancias de sprites simples en movimiento; activable/desactivable
+- [ ] T035 [US4] Añadir capa de pájaros como `ParallaxLayer` dinámico activable/desactivable con `AnimatedSprite2D`; ⚠️ debe seguir el nuevo patrón de Phase 5b (capa creada por código, no en tscn)
 - [ ] T036 [US4] Conectar señales `rain_toggled`, `wind_toggled`, `birds_toggled` del GameManager a sus efectos correspondientes
 - [ ] T037 [US4] Verificar que F2, F3, F4, F5 funcionan sin UI visible en pantalla
 

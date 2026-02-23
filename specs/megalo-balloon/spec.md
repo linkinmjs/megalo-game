@@ -92,11 +92,11 @@ Objetos abstractos que representan recuerdos (cenicero, frasco, etc.) aparecen m
 
 ### User Story 3 — Parallax background y atmósfera visual (Priority: P2)
 
-El fondo tiene múltiples capas de parallax con diferentes velocidades de scroll, creando sensación de profundidad. Incluye cielo, nubes y elementos cercanos. El player se encuentra en la segunda capa del parallax, es decir que hay un parallax más antes del player.
+El fondo tiene un número variable de capas de parallax con diferentes velocidades de scroll, creando sensación de profundidad. Cada "set de mundo" define su propio conjunto de capas: algunas detrás del player (cielo, nubes, elementos medios) y opcionalmente una o más delante del player (vegetación, niebla, ramas). Cuando una capa frontal está presente, elementos semi-transparentes pasan por delante del globo, envolviendo al jugador en el mundo. Al cambiar de fondo con F1, todas las capas —incluyendo las frontales— transicionan juntas.
 
-**Why this priority**: El aspecto visual es fundamental para el videoclip. El parallax le da vida al mundo.
+**Why this priority**: El aspecto visual es fundamental para el videoclip. El parallax le da vida al mundo y la capa frontal es lo que hace que el jugador se sienta "dentro" de la escena.
 
-**Independent Test**: Ejecutar el juego y verificar que las capas del fondo se mueven a distintas velocidades generando efecto de profundidad.
+**Independent Test**: Ejecutar el juego con un set que tenga capa frontal y verificar que elementos pasan delante del globo. Presionar F1 y verificar que todas las capas —incluyendo la frontal— transicionan al nuevo set.
 
 **Acceptance Scenarios**:
 
@@ -114,6 +114,18 @@ El fondo tiene múltiples capas de parallax con diferentes velocidades de scroll
    - **Given** hay múltiples fondos cargados
    - **When** el director presiona F1
    - **Then** el fondo transiciona suavemente (fade/cross-fade) al siguiente fondo disponible
+   - **Then** todas las capas del set anterior —incluyendo las frontales— desaparecen gradualmente mientras aparecen las del nuevo set
+
+4. **Scenario**: Capa frontal pasa por delante del jugador
+   - **Given** el set de fondo activo tiene al menos una capa marcada como "frontal"
+   - **When** el juego está corriendo
+   - **Then** los elementos de esa capa (vegetación, niebla) se mueven por delante del globo y la calavera, generando la sensación de que el jugador está inmerso en el mundo
+   - **Then** la capa frontal tiene transparencias — no tapa completamente al jugador; el globo sigue siendo reconocible detrás de los elementos
+
+5. **Scenario**: Set sin capa frontal
+   - **Given** el set de fondo activo no define ninguna capa frontal
+   - **When** el juego está corriendo
+   - **Then** el player se ve completamente despejado, sin elementos encima — solo el fondo detrás de él
 
 ---
 
@@ -319,6 +331,9 @@ El juego soporta tres idiomas. El jugador selecciona el idioma desde Settings y 
 - ¿Qué pasa si el globo llega al borde superior e intenta seguir subiendo? → Puede subir un poco más y desaparecer de la pantalla. Pero no subir infinitamente
 - ¿Qué pasa si varios obstáculos colisionan con el globo al mismo tiempo? → Cada uno aplica su knockback independientemente; el globo puede recibir múltiples impulsos pero nunca sale de pantalla.
 - ¿Qué pasa si el director presiona F1 pero solo hay un fondo cargado? → El fondo se queda igual, sin error.
+- ¿Qué pasa si dos sets tienen distinta cantidad de capas? → Cada set gestiona sus propias capas; al cambiar, las capas sobrantes del set anterior desaparecen y las nuevas aparecen sin conflicto.
+- ¿Qué pasa si una textura de capa frontal no tiene canal alfa? → La capa cubre al jugador completamente; es responsabilidad del diseñador usar texturas con transparencia en capas frontales.
+- ¿Qué pasa si F1 se presiona mientras el cross-fade está en progreso? → No hace nada (mismo comportamiento actual: se ignora el input durante el fade).
 - ¿Qué pasa si no hay archivo de audio en assets/audio/? → El juego funciona normalmente sin sonido (no crashea).
 - ¿Qué pasa si la nube de lluvia ya está activa y se presiona F2 de nuevo antes de que termine de aparecer? → Se inicia el proceso de desaparición inmediatamente.
 - ¿Qué pasa si el jugador presiona Escape durante el fade out de la pausa? → El fade se cancela y el juego reanuda inmediatamente.
@@ -341,9 +356,14 @@ El juego soporta tres idiomas. El jugador selecciona el idioma desde Settings y 
 - **FR-006**: El sistema DEBE generar obstáculos ("recuerdos") de forma automática durante el juego.
 - **FR-007**: Los obstáculos DEBEN moverse horizontalmente y desaparecer al salir de pantalla.
 - **FR-008**: Los obstáculos DEBEN aplicar un impulso (knockback) al globo al colisionar, sin eliminarlo.
-- **FR-009**: El juego DEBE mostrar un fondo con scroll lateral continuo y efecto parallax multicapa.
-- **FR-010**: El sistema DEBE soportar múltiples fondos intercambiables en tiempo real mediante la tecla F1.
-- **FR-011**: El cambio de fondo DEBE realizarse con una transición suave (fade).
+- **FR-009**: El juego DEBE mostrar un fondo con scroll lateral continuo y efecto parallax multicapa. El número de capas es flexible — cada set define sus propias capas sin límite fijo.
+- **FR-010**: El sistema DEBE soportar múltiples fondos (sets) intercambiables en tiempo real mediante la tecla F1.
+- **FR-011**: El cambio de fondo DEBE realizarse con una transición suave (fade) que afecte a todas las capas del set simultáneamente, incluyendo las frontales.
+- **FR-036**: Cada set de fondo DEBE poder definir cualquier cantidad de capas, cada una con su propia velocidad de scroll.
+- **FR-037**: Cada capa dentro de un set DEBE poder configurarse como "fondo" (detrás del player) o "frontal" (delante del player).
+- **FR-038**: Las capas frontales DEBEN renderizarse visualmente por encima del globo y la calavera.
+- **FR-039**: Las texturas de las capas frontales DEBEN soportar transparencia (canal alfa) para que el jugador sea visible a través de ellas.
+- **FR-040**: Sets diferentes pueden tener cantidades distintas de capas; la ausencia de capas frontales en un set es válida (el player se ve sin nada encima).
 - **FR-012**: El sistema de Director DEBE activar/desactivar una nube de lluvia con la tecla F2. La nube DEBE seguir al player de manera torpe (con retraso e inercia) mientras esté activa.
 - **FR-013**: El sistema de Director DEBE activar/desactivar un efecto de viento con la tecla F3.
 - **FR-014**: El sistema de Director DEBE activar/desactivar una bandada de pájaros con la tecla F4.
@@ -373,7 +393,7 @@ El juego soporta tres idiomas. El jugador selecciona el idioma desde Settings y 
 
 - **Globo (Player)**: El personaje controlado por el jugador. Está compuesto por **dos sprites independientes**: el globo aerostático en la parte superior y una calavera steampunk con parlante en la boca colgando debajo. La calavera se conecta al globo como un péndulo amortiguado — sigue el movimiento del globo con retraso y un sway lateral suave pero limitado (ver detalles en US1 Scenario 6). Tiene física (gravedad, mechero), puede recibir knockback y tiene animaciones de squish/stretch.
 - **Obstáculo (Obstacle)**: Objeto que atraviesa la pantalla horizontalmente. Tiene dirección, velocidad y fuerza de knockback. Subtipos: Cenicero, Frasco, (extensible).
-- **Fondo (Background)**: Recurso visual compuesto por múltiples capas parallax. Intercambiable en tiempo real.
+- **Fondo / Set de Mundo (Background Set)**: Recurso visual compuesto por N capas parallax (sin límite fijo). Cada capa tiene velocidad de scroll propia y se clasifica como "fondo" (detrás del player) o "frontal" (delante del player, con transparencias). Los sets son intercambiables en tiempo real con F1; el cambio afecta a todas las capas del set juntas.
 - **Evento de Director (DirectorEvent)**: Acción triggereada por el operador vía tecla. Activa/desactiva sistemas del juego (lluvia, viento, pájaros).
 - **Menú Principal (MainMenu)**: Pantalla de inicio. Contiene título, botones Play y Settings, y reproduce ambientación sonora.
 - **Settings**: Pantalla de configuración compartida entre el menú principal y la pausa. Controla los buses de audio "Música" y "SFX".

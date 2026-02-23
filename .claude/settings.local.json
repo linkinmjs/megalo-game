@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(cd C:\\\\Users\\\\Mauri\\\\Godot\\\\Proyectos\\\\megalo-claude:*)",
+      "Bash(python3:*)"
     ]
   }
 }
