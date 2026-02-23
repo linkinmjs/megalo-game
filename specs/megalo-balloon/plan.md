@@ -462,10 +462,10 @@ BACKGROUND_SETS = [{"textures": [path0, path1, ..., ""]}]  ← índice = slot de
 
 **Purpose**: Refinamientos que afectan a múltiples sistemas.
 
-- [ ] T052 Reactivar shader VHS en `game_manager.gd` (descomentar `_setup_vhs_layer()`) y ajustar intensidad con uniforms exportados
-- [ ] T053 Revisar feel del globo: ajustar `gravity`, `burner_force`, amortiguación lateral para sensación satisfactoria
-- [ ] T054 Verificar que no hay errores en la consola de Godot durante 2 minutos de ejecución
-- [ ] T055 Prueba de grabación completa: ejecutar el juego 2 minutos, triggerear todos los eventos del director, verificar fluidez
+- [x] T052 Reactivar shader VHS en `game_manager.gd` + uniforms exportados (`vhs_scanline_strength`, `vhs_chromatic_aberration`, `vhs_noise_strength`) ajustables desde Inspector
+- [ ] T053 Revisar feel del globo: ajustar `gravity`, `burner_force`, amortiguación lateral para sensación satisfactoria — **manual, en Inspector del nodo Balloon**
+- [ ] T054 Verificar que no hay errores en la consola de Godot durante 2 minutos de ejecución — **manual**
+- [ ] T055 Prueba de grabación completa: ejecutar el juego 2 minutos, triggerear todos los eventos del director, verificar fluidez — **manual**
 
 ---
 

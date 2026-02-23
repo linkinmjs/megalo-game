@@ -1,9 +1,6 @@
 extends Node
 ## Singleton global del juego.
 ## Gestiona señales entre sistemas, transiciones de escena y el overlay VHS.
-##
-## TODO (deferred): reactivar _setup_vhs_layer() en _ready() una vez que el
-## shader VHS esté afinado y no dificulte la lectura de la UI durante desarrollo.
 
 # ── Señales globales ───────────────────────────────────────────────────────────
 signal event_director(event_name: String)
@@ -17,6 +14,12 @@ signal birds_toggled(active: bool)
 var music_player: AudioStreamPlayer = null
 ## Escena a la que volver desde Settings (se setea antes de ir a Settings).
 var settings_return_scene: String = "main_menu"
+
+# ── VHS — uniforms ajustables desde el Inspector ───────────────────────────────
+@export_group("VHS")
+@export var vhs_scanline_strength:     float = 0.12  ## Intensidad de scanlines (0–1)
+@export var vhs_chromatic_aberration:  float = 0.003 ## Separación RGB (0–0.02)
+@export var vhs_noise_strength:        float = 0.04  ## Ruido estático (0–1)
 
 # ── Rutas de escenas ───────────────────────────────────────────────────────────
 const SCENES: Dictionary = {
@@ -33,7 +36,7 @@ var _vhs_rect: ColorRect
 var _changing_scene: bool = false
 
 func _ready() -> void:
-	#_setup_vhs_layer()
+	_setup_vhs_layer()
 	_setup_transition_overlay()
 
 # ── VHS ────────────────────────────────────────────────────────────────────────
@@ -53,6 +56,9 @@ func _setup_vhs_layer() -> void:
 	if shader:
 		var mat := ShaderMaterial.new()
 		mat.shader = shader
+		mat.set_shader_parameter("scanline_strength",    vhs_scanline_strength)
+		mat.set_shader_parameter("chromatic_aberration", vhs_chromatic_aberration)
+		mat.set_shader_parameter("noise_strength",       vhs_noise_strength)
 		_vhs_rect.material = mat
 
 # ── Overlay de transición ──────────────────────────────────────────────────────
