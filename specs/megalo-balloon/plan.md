@@ -311,15 +311,15 @@ BACKGROUND_SETS = [{"textures": [path0, path1, ..., ""]}]  ← índice = slot de
 
 ### Implementación para User Story 2
 
-- [ ] T022 [US2] Crear `scripts/obstacles/obstacle_base.gd`: variables `speed`, `direction` (±1), `knockback_force`; función `_process(delta)` para mover; auto-destrucción al salir de pantalla
-- [ ] T023 [US2] Crear `scenes/obstacles/obstacle_base.tscn`: `Area2D` + `Sprite2D` (placeholder) + `CollisionShape2D`
-- [ ] T024 [US2] Crear `scenes/obstacles/ashtray.tscn` heredando `obstacle_base.tscn`: dirección izq→der, sprite cenicero placeholder
-- [ ] T025 [US2] Crear `scenes/obstacles/bottle.tscn` heredando `obstacle_base.tscn`: dirección der→izq, sprite frasco placeholder
-- [ ] T026 [US2] Implementar detección de colisión en `obstacle_base.gd`: al detectar `balloon` en área, llamar `balloon.apply_knockback()` y emitir señal `hit_balloon`
-- [ ] T027 [US2] Crear `scripts/obstacles/obstacle_spawner.gd`: timer de cooldown (configurable), posición Y aleatoria dentro de márgenes, alternancia aleatoria entre tipos de obstáculos
-- [ ] T028 [US2] Crear `scenes/world/obstacle_spawner.tscn` con `Timer` y lógica de spawn
-- [ ] T029 [US2] Añadir animación squish/stretch en `balloon_controller.gd` al recibir knockback (Tween sobre `scale`)
-- [ ] T030 [US2] Conectar F5 del director al spawn manual de obstáculo
+- [x] T022 [US2] Crear `scripts/obstacles/obstacle_base.gd`: variables `speed`, `direction` (±1), `knockback_force`; función `_process(delta)` para mover; auto-destrucción al salir de pantalla
+- [x] T023 [US2] Crear `scenes/obstacles/obstacle_base.tscn`: `Area2D` + `Polygon2D` (placeholder visible sin textura) + `CollisionShape2D`
+- [x] T024 [US2] Crear `scenes/obstacles/ashtray.tscn` heredando `obstacle_base.tscn`: dirección izq→der, color naranja
+- [x] T025 [US2] Crear `scenes/obstacles/bottle.tscn` heredando `obstacle_base.tscn`: dirección der→izq, color azul
+- [x] T026 [US2] Implementar detección de colisión en `obstacle_base.gd`: al detectar `balloon` en área, llamar `balloon.apply_knockback()` y emitir señal `hit_balloon`
+- [x] T027 [US2] Crear `scripts/obstacles/obstacle_spawner.gd`: timer de cooldown (configurable), posición Y aleatoria dentro de márgenes, alternancia aleatoria entre tipos de obstáculos
+- [x] T028 [US2] Crear `scenes/world/obstacle_spawner.tscn` con `Timer` y lógica de spawn
+- [x] T029 [US2] Animación squish/stretch ya implementada en `balloon_controller.gd` (apply_knockback → _play_squish, Tween sobre VisualRoot.scale)
+- [x] T030 [US2] F5 del director emite `event_director("spawn_obstacle")` → `obstacle_spawner.gd` escucha `GameManager.event_director` y llama `_spawn_random()`
 
 **Checkpoint**: Obstáculos aparecen, cruzan la pantalla y empujan el globo al contactar.
 
