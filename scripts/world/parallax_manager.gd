@@ -27,41 +27,42 @@ const LAYER_CONFIGS: Array = [
 ## Cada entrada tiene "textures": Array donde índice i corresponde al slot i de LAYER_CONFIGS.
 ## Slots sin textura: "" o ausentes → sprite invisible (el código maneja arrays más cortos).
 ## 20 sets en total: sky_clouds ×8, nature ×4, post_apocalypse ×4, city_ruins ×4.
+## TODO: revisar capas pendientes de corrección (_static/_front) en los sets de post_apocalypse
+##       y los sky_clouds/set_05–08. Algunos sets pueden tener capas en orden incorrecto.
 const BACKGROUND_SETS: Array = [
-	# ── sky_clouds ──────────────────────────────────────────────────────────────
+	# ── sky_clouds (5 sets) ──────────────────────────────────────────────────────
 	{"textures": [  # sky_clouds/set_01 — 4 capas
-		"res://assets/backgrounds/sky_clouds/set_01/layer_01.png",
+		"res://assets/backgrounds/sky_clouds/set_01/layer_01_static.png",
 		"res://assets/backgrounds/sky_clouds/set_01/layer_02.png",
 		"res://assets/backgrounds/sky_clouds/set_01/layer_03.png",
 		"res://assets/backgrounds/sky_clouds/set_01/layer_04.png",
 	]},
 	{"textures": [  # sky_clouds/set_02 — 4 capas
-		"res://assets/backgrounds/sky_clouds/set_02/layer_01.png",
+		"res://assets/backgrounds/sky_clouds/set_02/layer_01_static.png",
 		"res://assets/backgrounds/sky_clouds/set_02/layer_02.png",
 		"res://assets/backgrounds/sky_clouds/set_02/layer_03.png",
 		"res://assets/backgrounds/sky_clouds/set_02/layer_04.png",
 	]},
 	{"textures": [  # sky_clouds/set_03 — 4 capas
-		"res://assets/backgrounds/sky_clouds/set_03/layer_01.png",
+		"res://assets/backgrounds/sky_clouds/set_03/layer_01_static.png",
 		"res://assets/backgrounds/sky_clouds/set_03/layer_02.png",
 		"res://assets/backgrounds/sky_clouds/set_03/layer_03.png",
 		"res://assets/backgrounds/sky_clouds/set_03/layer_04.png",
 	]},
 	{"textures": [  # sky_clouds/set_04 — 4 capas
-		"res://assets/backgrounds/sky_clouds/set_04/layer_01.png",
+		"res://assets/backgrounds/sky_clouds/set_04/layer_01_static.png",
 		"res://assets/backgrounds/sky_clouds/set_04/layer_02.png",
 		"res://assets/backgrounds/sky_clouds/set_04/layer_03.png",
 		"res://assets/backgrounds/sky_clouds/set_04/layer_04.png",
 	]},
-	{"textures": [  # sky_clouds/set_05 — 5 capas
-		"res://assets/backgrounds/sky_clouds/set_05/layer_01.png",
+	{"textures": [  # sky_clouds/set_05 — 4 capas
+		"res://assets/backgrounds/sky_clouds/set_05/layer_01_static.png",
 		"res://assets/backgrounds/sky_clouds/set_05/layer_02.png",
 		"res://assets/backgrounds/sky_clouds/set_05/layer_03.png",
 		"res://assets/backgrounds/sky_clouds/set_05/layer_04.png",
-		"res://assets/backgrounds/sky_clouds/set_05/layer_05.png",
 	]},
 	{"textures": [  # sky_clouds/set_06 — 6 capas
-		"res://assets/backgrounds/sky_clouds/set_06/layer_01.png",
+		"res://assets/backgrounds/sky_clouds/set_06/layer_01_static.png",
 		"res://assets/backgrounds/sky_clouds/set_06/layer_02.png",
 		"res://assets/backgrounds/sky_clouds/set_06/layer_03.png",
 		"res://assets/backgrounds/sky_clouds/set_06/layer_04.png",
@@ -69,48 +70,48 @@ const BACKGROUND_SETS: Array = [
 		"res://assets/backgrounds/sky_clouds/set_06/layer_06.png",
 	]},
 	{"textures": [  # sky_clouds/set_07 — 4 capas
-		"res://assets/backgrounds/sky_clouds/set_07/layer_01.png",
+		"res://assets/backgrounds/sky_clouds/set_07/layer_01_static.png",
 		"res://assets/backgrounds/sky_clouds/set_07/layer_02.png",
 		"res://assets/backgrounds/sky_clouds/set_07/layer_03.png",
 		"res://assets/backgrounds/sky_clouds/set_07/layer_04.png",
 	]},
 	{"textures": [  # sky_clouds/set_08 — 6 capas
-		"res://assets/backgrounds/sky_clouds/set_08/layer_01.png",
+		"res://assets/backgrounds/sky_clouds/set_08/layer_01_static.png",
 		"res://assets/backgrounds/sky_clouds/set_08/layer_02.png",
 		"res://assets/backgrounds/sky_clouds/set_08/layer_03.png",
 		"res://assets/backgrounds/sky_clouds/set_08/layer_04.png",
 		"res://assets/backgrounds/sky_clouds/set_08/layer_05.png",
 		"res://assets/backgrounds/sky_clouds/set_08/layer_06.png",
 	]},
-	# ── nature ──────────────────────────────────────────────────────────────────
+	# ── nature (4 sets) ──────────────────────────────────────────────────────────
 	{"textures": [  # nature/set_01 — 3 capas
-		"res://assets/backgrounds/nature/set_01/layer_01.png",
+		"res://assets/backgrounds/nature/set_01/layer_01_static.png",
 		"res://assets/backgrounds/nature/set_01/layer_02.png",
 		"res://assets/backgrounds/nature/set_01/layer_03.png",
 	]},
 	{"textures": [  # nature/set_02 — 4 capas
-		"res://assets/backgrounds/nature/set_02/layer_01.png",
+		"res://assets/backgrounds/nature/set_02/layer_01_static.png",
 		"res://assets/backgrounds/nature/set_02/layer_02.png",
 		"res://assets/backgrounds/nature/set_02/layer_03.png",
-		"res://assets/backgrounds/nature/set_02/layer_04.png",
+		"res://assets/backgrounds/nature/set_02/layer_04_front.png",
 	]},
 	{"textures": [  # nature/set_03 — 5 capas
-		"res://assets/backgrounds/nature/set_03/layer_01.png",
+		"res://assets/backgrounds/nature/set_03/layer_01_static.png",
 		"res://assets/backgrounds/nature/set_03/layer_02.png",
 		"res://assets/backgrounds/nature/set_03/layer_03.png",
 		"res://assets/backgrounds/nature/set_03/layer_04.png",
 		"res://assets/backgrounds/nature/set_03/layer_05.png",
 	]},
 	{"textures": [  # nature/set_04 — 7 capas
-		"res://assets/backgrounds/nature/set_04/layer_01.png",
+		"res://assets/backgrounds/nature/set_04/layer_01_static.png",
 		"res://assets/backgrounds/nature/set_04/layer_02.png",
 		"res://assets/backgrounds/nature/set_04/layer_03.png",
 		"res://assets/backgrounds/nature/set_04/layer_04.png",
 		"res://assets/backgrounds/nature/set_04/layer_05.png",
 		"res://assets/backgrounds/nature/set_04/layer_06.png",
-		"res://assets/backgrounds/nature/set_04/layer_07.png",
+		"res://assets/backgrounds/nature/set_04/layer_07_front.png",
 	]},
-	# ── post_apocalypse ─────────────────────────────────────────────────────────
+	# ── post_apocalypse (4 sets) ─────────────────────────────────────────────────
 	{"textures": [  # post_apocalypse/set_01 — 3 capas
 		"res://assets/backgrounds/post_apocalypse/set_01/layer_01.png",
 		"res://assets/backgrounds/post_apocalypse/set_01/layer_02.png",
@@ -134,33 +135,33 @@ const BACKGROUND_SETS: Array = [
 		"res://assets/backgrounds/post_apocalypse/set_04/layer_03.png",
 		"res://assets/backgrounds/post_apocalypse/set_04/layer_04.png",
 	]},
-	# ── city_ruins ──────────────────────────────────────────────────────────────
+	# ── city_ruins (4 sets) ──────────────────────────────────────────────────────
 	{"textures": [  # city_ruins/set_01 — 5 capas
 		"res://assets/backgrounds/city_ruins/set_01/layer_01.png",
 		"res://assets/backgrounds/city_ruins/set_01/layer_02.png",
 		"res://assets/backgrounds/city_ruins/set_01/layer_03.png",
 		"res://assets/backgrounds/city_ruins/set_01/layer_04.png",
-		"res://assets/backgrounds/city_ruins/set_01/layer_05.png",
+		"res://assets/backgrounds/city_ruins/set_01/layer_05_front.png",
 	]},
 	{"textures": [  # city_ruins/set_02 — 6 capas
-		"res://assets/backgrounds/city_ruins/set_02/layer_01.png",
+		"res://assets/backgrounds/city_ruins/set_02/layer_01_static.png",
 		"res://assets/backgrounds/city_ruins/set_02/layer_02.png",
 		"res://assets/backgrounds/city_ruins/set_02/layer_03.png",
 		"res://assets/backgrounds/city_ruins/set_02/layer_04.png",
 		"res://assets/backgrounds/city_ruins/set_02/layer_05.png",
-		"res://assets/backgrounds/city_ruins/set_02/layer_06.png",
+		"res://assets/backgrounds/city_ruins/set_02/layer_06_front.png",
 	]},
 	{"textures": [  # city_ruins/set_03 — 7 capas
-		"res://assets/backgrounds/city_ruins/set_03/layer_01.png",
+		"res://assets/backgrounds/city_ruins/set_03/layer_01_static.png",
 		"res://assets/backgrounds/city_ruins/set_03/layer_02.png",
 		"res://assets/backgrounds/city_ruins/set_03/layer_03.png",
 		"res://assets/backgrounds/city_ruins/set_03/layer_04.png",
 		"res://assets/backgrounds/city_ruins/set_03/layer_05.png",
 		"res://assets/backgrounds/city_ruins/set_03/layer_06.png",
-		"res://assets/backgrounds/city_ruins/set_03/layer_07.png",
+		"res://assets/backgrounds/city_ruins/set_03/layer_07_front.png",
 	]},
 	{"textures": [  # city_ruins/set_04 — 7 capas
-		"res://assets/backgrounds/city_ruins/set_04/layer_01.png",
+		"res://assets/backgrounds/city_ruins/set_04/layer_01_static.png",
 		"res://assets/backgrounds/city_ruins/set_04/layer_02.png",
 		"res://assets/backgrounds/city_ruins/set_04/layer_03.png",
 		"res://assets/backgrounds/city_ruins/set_04/layer_04.png",
@@ -228,10 +229,10 @@ func _load_background(index: int, sprites: Array[Sprite2D]) -> void:
 	var set_name: String = textures[0].get_base_dir().trim_prefix("res://assets/backgrounds/") if textures.size() > 0 else "vacío"
 	print("ParallaxManager [set %d/%d]: %s (%d capas)" % [index + 1, BACKGROUND_SETS.size(), set_name, textures.size()])
 	var vp_size: Vector2 = get_viewport_rect().size
-	# Restaurar scroll de todas las capas (por si el set anterior tenía última capa estática)
+	# Restaurar scroll y z_index de todas las capas (por si el set anterior los modificó)
 	for i in _layers.size():
 		_layers[i].motion_scale.x = LAYER_CONFIGS[i]["scroll_x"]
-	var last_loaded_slot := -1
+		_layers[i].z_index = LAYER_CONFIGS[i]["z_index"]
 	for i in LAYER_CONFIGS.size():
 		var path: String = textures[i] if i < textures.size() else ""
 		if path == "":
@@ -244,21 +245,27 @@ func _load_background(index: int, sprites: Array[Sprite2D]) -> void:
 			sprites[i].position = Vector2.ZERO
 			continue
 		sprites[i].texture = load(path)
-		sprites[i].position = Vector2.ZERO
 		var tex_size: Vector2 = sprites[i].texture.get_size()
-		# Escalar el sprite para cubrir el viewport completo
 		var scale_factor := vp_size.y / tex_size.y
 		sprites[i].scale = Vector2(scale_factor, scale_factor)
-		# motion_mirroring usa el ancho escalado para tiling sin costura
-		_layers[i].motion_mirroring = Vector2(tex_size.x * scale_factor, 0.0)
-		print("  ✓ slot %d — %s (%.0fx%.0f → escala %.2f)" % [i, path.get_file(), tex_size.x, tex_size.y, scale_factor])
-		last_loaded_slot = i
-	# La última capa cargada es estática: sin scroll, sin tiling, centrada en viewport
-	if last_loaded_slot >= 0:
-		_layers[last_loaded_slot].motion_scale = Vector2.ZERO
-		_layers[last_loaded_slot].motion_mirroring = Vector2.ZERO
-		sprites[last_loaded_slot].position = -vp_size * 0.5
-		print("  → slot %d marcado como estático (sin parallax)" % last_loaded_slot)
+		var filename: String = path.get_file()
+		if filename.contains("_static"):
+			# Sin scroll, sin tiling — (0,0) ya es la esquina superior izquierda del viewport
+			_layers[i].motion_scale = Vector2.ZERO
+			_layers[i].motion_mirroring = Vector2.ZERO
+			sprites[i].position = Vector2.ZERO
+			print("  ✓ slot %d [static] — %s (escala %.2f)" % [i, filename, scale_factor])
+		elif filename.contains("_front"):
+			# Parallax normal pero z_index elevado: se renderiza delante del player (z=0)
+			_layers[i].motion_mirroring = Vector2(tex_size.x * scale_factor, 0.0)
+			_layers[i].z_index = maxi(_layers[i].z_index, 2)
+			sprites[i].position = Vector2.ZERO
+			print("  ✓ slot %d [front] — %s (escala %.2f, z=%d)" % [i, filename, scale_factor, _layers[i].z_index])
+		else:
+			# Capa normal con parallax y tiling
+			_layers[i].motion_mirroring = Vector2(tex_size.x * scale_factor, 0.0)
+			sprites[i].position = Vector2.ZERO
+			print("  ✓ slot %d — %s (%.0fx%.0f → escala %.2f)" % [i, filename, tex_size.x, tex_size.y, scale_factor])
 
 # ── Cambio de fondo con cross-fade ────────────────────────────────────────────
 func next_background() -> void:

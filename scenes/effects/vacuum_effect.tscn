@@ -86,41 +86,44 @@ points = PackedVector2Array(80, 90, 250, 102, 450, 122, 660, 152, 920, 178)
 width = 4.5
 default_color = Color(0.55, 0.82, 1.0, 0.55)
 
-; ── Partículas de succión — dos emisores en cono convergente a la boca ────────
+; ── Partículas de succión — dos emisores en cono desde las esquinas del viewport ─
 ; Emisores en coordenadas LOCALES (local_coords=true) para que sigan la aspiradora.
-; Posiciones calculadas para que las partículas convergean en la boca (~local x=50, y=0).
-; Upper: desde (960, -270) → boca (50, 0):  dir = normalize(-910, 270) ≈ (-0.958, 0.285)
-; Lower: desde (960,  270) → boca (50, 0):  dir = normalize(-910,-270) ≈ (-0.958,-0.285)
+; Vacío activo en world x=-580. Local x=1280 → world x=700 (justo fuera del borde derecho).
+; Local y=±380 cubre las esquinas del viewport (720/2=360 + margen).
+; Direcciones calculadas hacia la boca (~local x=50, y=0):
+;   Upper: normalize(50-1280, 0-(-380)) = normalize(-1230, 380) ≈ (-0.956, 0.295)
+;   Lower: normalize(-1230, -380) ≈ (-0.956, -0.295)
+; Lifetime 1.65s × avg 780px/s ≈ 1287 unidades = distancia exacta a la boca → fade justo al llegar.
 [node name="SuctionParticles" type="Node2D" parent="."]
 
 [node name="SuctionParticlesUpper" type="CPUParticles2D" parent="SuctionParticles"]
-position = Vector2(960, -270)
+position = Vector2(1280, -380)
 emitting = false
-amount = 55
-lifetime = 1.3
-lifetime_randomness = 0.25
+amount = 60
+lifetime = 1.65
+lifetime_randomness = 0.2
 local_coords = true
-direction = Vector2(-0.958, 0.285)
-spread = 25.0
+direction = Vector2(-0.956, 0.295)
+spread = 28.0
 gravity = Vector2(0, 0)
-initial_velocity_min = 640.0
-initial_velocity_max = 840.0
+initial_velocity_min = 680.0
+initial_velocity_max = 880.0
 scale_amount_min = 1.5
 scale_amount_max = 3.5
 color_ramp = SubResource("Gradient_suction")
 
 [node name="SuctionParticlesLower" type="CPUParticles2D" parent="SuctionParticles"]
-position = Vector2(960, 270)
+position = Vector2(1280, 380)
 emitting = false
-amount = 55
-lifetime = 1.3
-lifetime_randomness = 0.25
+amount = 60
+lifetime = 1.65
+lifetime_randomness = 0.2
 local_coords = true
-direction = Vector2(-0.958, -0.285)
-spread = 25.0
+direction = Vector2(-0.956, -0.295)
+spread = 28.0
 gravity = Vector2(0, 0)
-initial_velocity_min = 640.0
-initial_velocity_max = 840.0
+initial_velocity_min = 680.0
+initial_velocity_max = 880.0
 scale_amount_min = 1.5
 scale_amount_max = 3.5
 color_ramp = SubResource("Gradient_suction")

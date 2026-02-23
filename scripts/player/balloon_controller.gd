@@ -16,10 +16,12 @@ signal burner_deactivated()
 @export var screen_margin: float      = 60.0   ## Margen en px desde el borde de pantalla
 @export var top_overflow: float       = 80.0   ## Cuántos px puede sobresalir por arriba
 
-# ── Inflado del globo ──────────────────────────────────────────────────────────
+# ── Inflado y tilt del globo ───────────────────────────────────────────────────
 @export_group("Balloon Inflate")
-@export var balloon_inflate_scale: float = 1.06  ## Escala máxima al inflar (1.0 = normal)
-@export var balloon_inflate_speed: float = 3.0   ## Velocidad de lerp del inflado
+@export var balloon_inflate_scale: float = 1.06   ## Escala máxima al inflar (1.0 = normal)
+@export var balloon_inflate_speed: float = 3.0    ## Velocidad de lerp del inflado
+@export var balloon_tilt_factor:   float = 0.0010 ## Rotación máx. por vel. lateral (rad por px/s)
+@export var balloon_tilt_damping:  float = 5.0    ## Velocidad de retorno al centro
 
 # ── Knockback / Hurt ───────────────────────────────────────────────────────────
 @export_group("Knockback")
@@ -75,6 +77,7 @@ func _physics_process(delta: float) -> void:
 		_launch_timer = hit_launch_duration
 	_apply_screen_limits()
 	move_and_slide()
+	_update_balloon_tilt(delta)
 	if not _hit_active:
 		_update_balloon_inflate(delta)
 		_update_skull_sway(delta)
@@ -145,6 +148,12 @@ func _apply_screen_limits() -> void:
 	if position.y < -hh - top_overflow:
 		position.y = -hh - top_overflow
 		velocity.y = maxf(velocity.y, 0.0)
+
+# ── Tilt del globo completo (visual_root) según velocidad lateral ─────────────
+## Siempre activo (fuera del gate hit_active) para que corrija a 0 durante el freeze.
+func _update_balloon_tilt(delta: float) -> void:
+	var target_rot := velocity.x * balloon_tilt_factor
+	visual_root.rotation = lerpf(visual_root.rotation, target_rot, balloon_tilt_damping * delta)
 
 # ── Inflado del globo (solo balloon_sprite) ────────────────────────────────────
 func _update_balloon_inflate(delta: float) -> void:
