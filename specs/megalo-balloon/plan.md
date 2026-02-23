@@ -449,10 +449,10 @@ BACKGROUND_SETS = [{"textures": [path0, path1, ..., ""]}]  ← índice = slot de
 
 **Independent Test**: F4 → pájaros bajan desde arriba con animación suave, hilo visible encima de cada uno, se desplazan horizontalmente. F4 → suben y desaparecen.
 
-- [ ] T-BIRD-001 `scripts/effects/birds_controller.gd`: clase BirdsController — toggle via `birds_toggled`, Tween de descenso/ascenso del contenedor de pájaros, `_process` para scroll horizontal con wraparound, `_make_bird_marionette()` que crea Polygon2D (silueta) + Line2D (hilo de 700px hacia arriba)
-- [ ] T-BIRD-002 `scenes/effects/birds_controller.tscn`: Node2D raíz con script (sin hijos — se crean dinámicamente)
-- [ ] T-BIRD-003 `scenes/main.tscn`: añadir instancia `BirdsController` en `GameWorld`
-- [ ] T-BIRD-004 `scripts/world/parallax_manager.gd`: eliminar `_bird_layer`, `toggle_birds()`, `_create_bird_layer()`, `_make_bird_shape()` y la conexión `birds_toggled` en `_ready()`
+- [x] T-BIRD-001 `scripts/effects/birds_controller.gd`: clase BirdsController — toggle via `birds_toggled`, Tween de descenso/ascenso del contenedor de pájaros, `_process` para scroll horizontal con wraparound, `_make_bird_marionette()` que crea Polygon2D (silueta) + Line2D (hilo de 700px hacia arriba)
+- [x] T-BIRD-002 `scenes/effects/birds_controller.tscn`: Node2D raíz con script (sin hijos — se crean dinámicamente)
+- [x] T-BIRD-003 `scenes/main.tscn`: añadir instancia `BirdsController` en `GameWorld`
+- [x] T-BIRD-004 `scripts/world/parallax_manager.gd`: eliminar `_bird_layer`, `toggle_birds()`, `_create_bird_layer()`, `_make_bird_shape()` y la conexión `birds_toggled` en `_ready()`
 
 **Checkpoint**: F4 → pájaros descienden animados con hilos. F4 → ascienden. Sin rastros de la lógica anterior en parallax_manager.
 

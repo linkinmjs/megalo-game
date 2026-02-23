@@ -30,7 +30,7 @@ uno con un hilo visible. Presionar F4 → pájaros suben y desaparecen por arrib
 
 ### Implementación
 
-- [ ] T-BIRD-001 [US1+US2+US3] Crear `scripts/effects/birds_controller.gd`:
+- [x] T-BIRD-001 [US1+US2+US3] Crear `scripts/effects/birds_controller.gd`:
   ```
   class_name BirdsController extends Node2D
   @export var bird_count: int = 8
@@ -110,14 +110,14 @@ uno con un hilo visible. Presionar F4 → pájaros suben y desaparecen por arrib
       return root
   ```
 
-- [ ] T-BIRD-002 [US1] Crear `scenes/effects/birds_controller.tscn`:
+- [x] T-BIRD-002 [US1] Crear `scenes/effects/birds_controller.tscn`:
   - Raíz: `Node2D` con script `birds_controller.gd`
   - Sin hijos (los pájaros se crean dinámicamente por código)
 
-- [ ] T-BIRD-003 `scenes/main.tscn`: añadir instancia de `birds_controller.tscn`
+- [x] T-BIRD-003 `scenes/main.tscn`: añadir instancia de `birds_controller.tscn`
   como hijo de `GameWorld` (después de `WindEffect` / `VacuumEffect`)
 
-- [ ] T-BIRD-004 `scripts/world/parallax_manager.gd`: eliminar toda la lógica de pájaros:
+- [x] T-BIRD-004 `scripts/world/parallax_manager.gd`: eliminar toda la lógica de pájaros:
   - Eliminar variable `_bird_layer: ParallaxLayer`
   - Eliminar función `toggle_birds(active: bool)`
   - Eliminar función `_create_bird_layer()`
