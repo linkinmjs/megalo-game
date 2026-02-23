@@ -53,23 +53,19 @@ func _process(delta: float) -> void:
 
 # ── Creación de sprites ─────────────────────────────────────────────────────────
 func _create_layer_sprites() -> void:
-	# Con cámara DRAG_CENTER en (0,0), el viewport va de (-half_vp) a (+half_vp).
-	# Los sprites deben comenzar en (-half_vp) para cubrir desde la esquina superior-izquierda.
-	var half_vp: Vector2 = get_viewport_rect().size * 0.5
-	var start_pos := Vector2(-half_vp.x, -half_vp.y)
-	for i in _layers.size():
-		var sprite_a := _make_sprite(start_pos)
-		var sprite_b := _make_sprite(start_pos)
+	for layer in _layers:
+		var sprite_a := _make_sprite()
+		var sprite_b := _make_sprite()
 		sprite_b.modulate.a = 0.0
-		_layers[i].add_child(sprite_a)
-		_layers[i].add_child(sprite_b)
+		layer.add_child(sprite_a)
+		layer.add_child(sprite_b)
 		_sprites_a.append(sprite_a)
 		_sprites_b.append(sprite_b)
 
-func _make_sprite(pos: Vector2 = Vector2.ZERO) -> Sprite2D:
+func _make_sprite() -> Sprite2D:
 	var s := Sprite2D.new()
 	s.centered = false
-	s.position = pos
+	s.position = Vector2.ZERO
 	return s
 
 # ── Carga de texturas ───────────────────────────────────────────────────────────
@@ -77,21 +73,19 @@ func _load_background(index: int, sprites: Array[Sprite2D]) -> void:
 	if BACKGROUND_SETS.is_empty():
 		return
 	var set_data: Dictionary = BACKGROUND_SETS[index % BACKGROUND_SETS.size()]
-	var vp_size: Vector2 = get_viewport_rect().size
 	var keys := ["far", "mid", "front"]
+	var vp_size: Vector2 = get_viewport_rect().size
 	for i in sprites.size():
 		var path: String = set_data.get(keys[i], "")
 		if path == "" or not ResourceLoader.exists(path):
 			push_warning("ParallaxManager: textura no encontrada — " + path)
 			continue
 		sprites[i].texture = load(path)
-		# Escalar el sprite para que la imagen llene exactamente el alto del viewport.
-		# Las imágenes son pixel art (576×324); el factor lleva 324→720 sin distorsión
-		# porque el aspect ratio 16:9 coincide con el del viewport.
 		var tex_size: Vector2 = sprites[i].texture.get_size()
-		var scale_factor: float = vp_size.y / tex_size.y if tex_size.y > 0.0 else 1.0
+		# Escalar el sprite para cubrir el viewport completo (texturas 576x324 → 1280x720)
+		var scale_factor := vp_size.y / tex_size.y
 		sprites[i].scale = Vector2(scale_factor, scale_factor)
-		# motion_mirroring = ancho escalado → tiling sin costura
+		# motion_mirroring debe usar el ancho ESCALADO para que el tiling sea sin costura
 		_layers[i].motion_mirroring = Vector2(tex_size.x * scale_factor, 0.0)
 
 # ── Cambio de fondo con cross-fade ─────────────────────────────────────────────
