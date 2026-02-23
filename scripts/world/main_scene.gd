@@ -9,8 +9,7 @@ extends Node2D
 
 func _ready() -> void:
 	GameManager.music_player = music_player
-	if music_player.stream != null:
-		music_player.play()
+	_load_music()
 
 	# Asignar target de la nube (la sigue torpemente)
 	rain_cloud.target = balloon
@@ -18,3 +17,23 @@ func _ready() -> void:
 	# Cablear fuerzas de efectos → globo via señales
 	rain_cloud.rain_force_changed.connect(balloon.receive_rain_force)
 	wind_effect.wind_force_changed.connect(balloon.receive_wind_force)
+
+func _load_music() -> void:
+	var dir := DirAccess.open("res://assets/audio/")
+	if dir == null:
+		push_warning("MainScene: carpeta assets/audio/ no encontrada")
+		return
+
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+	while file_name != "":
+		if file_name.ends_with(".mp3") or file_name.ends_with(".ogg"):
+			var stream = load("res://assets/audio/" + file_name)
+			if stream:
+				stream.loop = true
+				music_player.stream = stream
+				music_player.play()
+				return
+		file_name = dir.get_next()
+
+	push_warning("MainScene: no se encontró audio en assets/audio/")

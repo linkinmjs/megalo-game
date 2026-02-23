@@ -353,9 +353,9 @@ BACKGROUND_SETS = [{"textures": [path0, path1, ..., ""]}]  ← índice = slot de
 
 ### Implementación para User Story 5
 
-- [ ] T038 [US5] Añadir `AudioStreamPlayer` a `main.tscn` (o manejar desde `GameManager`)
-- [ ] T039 [US5] En `game_manager.gd`: cargar audio desde `assets/audio/` si existe, reproducir al inicio con `play()`
-- [ ] T040 [US5] Manejar el caso de audio inexistente sin crash (print warning y continuar)
+- [x] T038 [US5] Añadir `AudioStreamPlayer` a `main.tscn` (ya existía — bus: Music)
+- [x] T039 [US5] En `main_scene.gd`: escanear `assets/audio/` con `DirAccess`, cargar el primer `.mp3`/`.ogg` encontrado, asignar stream y reproducir con loop
+- [x] T040 [US5] Manejar el caso de audio inexistente sin crash (`push_warning` y continuar)
 
 **Checkpoint**: La canción suena al iniciar si hay archivo en assets/audio/.
 

@@ -83,10 +83,12 @@ Objetos abstractos que representan recuerdos (cenicero, frasco, etc.) aparecen m
    - **When** se produce el contacto
    - **Then** el globo recibe un impulso (knockback) en la dirección opuesta al obstáculo, pero no muere ni pierde vidas
 
-4. **Scenario**: Feedback visual en colisión
+4. **Scenario**: Feedback visual en colisión *(deprecated — ver specs/hurt-animation/spec.md)*
    - **Given** se produce una colisión
    - **When** el globo recibe el knockback o genera algún efecto en la pantalla
-   - **Then** se reproduce una animación de squish/stretch en el globo
+   - **Then** ~~se reproduce una animación de squish/stretch en el globo~~
+   - **Then** el globo se tiñe de rojo brevemente, el input se congela ~0.3s, y el globo
+     sale impulsado en la dirección del knockback. Sin cambio de tamaño.
 
 ---
 
@@ -146,19 +148,23 @@ El operador puede triggerear eventos visuales y atmosféricos durante la grabaci
    - **When** el director presiona F2 nuevamente
    - **Then** la nube y la lluvia desaparecen gradualmente
 
-2. **Scenario**: Toggle viento (F3)
+2. **Scenario**: Toggle aspiradora / succión (F3) *(reemplaza viento — ver specs/aspiradora/spec.md)*
    - **Given** el juego está corriendo
    - **When** el director presiona F3
-   - **Then** un efecto de viento empuja al globo lateralmente y se visualizan partículas de viento en pantalla
+   - **Then** ~~un efecto de viento empuja al globo lateralmente~~
+   - **Then** una aspiradora gigante asoma desde el borde izquierdo y succiona al globo
+     hacia ella; se visualizan partículas fluyendo hacia la boca de la aspiradora
    - **When** el director presiona F3 nuevamente
-   - **Then** el viento cesa gradualmente
+   - **Then** la aspiradora sale de pantalla y la succión cesa
 
-3. **Scenario**: Toggle bandada de pájaros (F4)
+3. **Scenario**: Toggle bandada de pájaros marioneta (F4) *(animación actualizada — ver specs/pajaros-marioneta/spec.md)*
    - **Given** el juego está corriendo
    - **When** el director presiona F4
-   - **Then** una bandada de pájaros cruza la pantalla como capa de parallax en movimiento
+   - **Then** ~~una bandada de pájaros cruza la pantalla como capa de parallax en movimiento~~
+   - **Then** los pájaros descienden desde el borde superior con animación suave; cada uno
+     tiene un hilo visible; una vez abajo se desplazan horizontalmente en loop
    - **When** el director presiona F4 nuevamente
-   - **Then** los pájaros desaparecen
+   - **Then** los pájaros ascienden de vuelta hacia arriba y desaparecen
 
 4. **Scenario**: Spawn manual de obstáculo (F5)
    - **Given** el juego está corriendo
