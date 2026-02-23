@@ -1,62 +1,91 @@
 class_name BirdsController
 extends Node2D
-## Pájaros marioneta que descienden desde arriba al activar F4.
-## Cada pájaro lleva un hilo visible (Line2D) que simula animación de marioneta.
-## Lógica independiente del parallax — se conecta directamente a GameManager.birds_toggled.
+## Pájaros marioneta que descienden desde arriba y scrollean hacia la izquierda.
+## Al activar F4: oleada inicial + spawn continuo. Al desactivar: todos ascienden y se destruyen.
+## Cada pájaro lleva un hilo visible (Line2D) de 700px hacia arriba.
 
-@export var bird_count:    int   = 8
-@export var rest_y:        float = -150.0  ## Posición Y estable (relativa al centro de pantalla)
-@export var scroll_speed:  float = 120.0   ## Velocidad de desplazamiento horizontal (px/s)
-@export var anim_duration: float = 1.0     ## Duración de la animación de descenso/ascenso (s)
+@export var bird_count:     int   = 8    ## Pájaros en la oleada inicial
+@export var rest_y:         float = -150.0  ## Posición Y estable (relativa al centro)
+@export var scroll_speed:   float = 120.0   ## Velocidad de scroll horizontal (px/s)
+@export var anim_duration:  float = 1.0     ## Duración de descenso/ascenso (s)
+@export var spawn_interval: float = 1.2     ## Segundos entre spawns individuales
 
-var _active:    bool    = false
-var _container: Node2D  = null  ## Contiene todos los pájaros; se anima en Y
-var _tween:     Tween   = null
+var _active:      bool              = false
+var _spawn_timer: float             = 0.0
+var _birds:       Array[Node2D]     = []  ## Pájaros activos en escena
 
 func _ready() -> void:
 	GameManager.birds_toggled.connect(_on_birds_toggled)
 
 func _process(delta: float) -> void:
-	if _container == null:
+	if not _active:
 		return
-	# Desplazamiento horizontal en loop suave
-	_container.position.x -= scroll_speed * delta
-	var mirror_width := 1280.0
-	if _container.position.x < -mirror_width:
-		_container.position.x += mirror_width
+
+	# Scroll izquierda + destruir los que salen de pantalla
+	var left_limit := -(get_viewport_rect().size.x * 0.5 + 100.0)
+	var to_remove: Array[Node2D] = []
+	for bird in _birds:
+		bird.position.x -= scroll_speed * delta
+		if bird.position.x < left_limit:
+			to_remove.append(bird)
+	for bird in to_remove:
+		_birds.erase(bird)
+		bird.queue_free()
+
+	# Spawn continuo
+	_spawn_timer -= delta
+	if _spawn_timer <= 0.0:
+		_spawn_timer = spawn_interval
+		_spawn_one()
 
 func _on_birds_toggled(active: bool) -> void:
 	_active = active
-	if _tween:
-		_tween.kill()
 	if active:
-		_create_birds()
-		var vp_hh := get_viewport_rect().size.y * 0.5
-		_container.position.y = -(vp_hh + 100.0)  # fuera de pantalla, arriba
-		_tween = create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-		_tween.tween_property(_container, "position:y", rest_y, anim_duration)
+		_spawn_initial_wave()
+		_spawn_timer = spawn_interval
 	else:
-		if _container == null:
-			return
-		var vp_hh := get_viewport_rect().size.y * 0.5
-		_tween = create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
-		_tween.tween_property(_container, "position:y", -(vp_hh + 100.0), anim_duration)
-		_tween.tween_callback(func(): _destroy_birds())
+		_ascend_all()
 
-func _create_birds() -> void:
-	_container = Node2D.new()
-	_container.z_index = 1
-	add_child(_container)
-	var xs := _spread_xs(bird_count, 1280.0)
+# ── Spawn ──────────────────────────────────────────────────────────────────────
+
+func _spawn_initial_wave() -> void:
+	var vp := get_viewport_rect().size
+	var xs := _spread_xs(bird_count, vp.x)
 	for x in xs:
 		var bird := _make_bird_marionette()
-		bird.position = Vector2(x - 640.0, 0.0)
-		_container.add_child(bird)
+		bird.position = Vector2(x - vp.x * 0.5, -(vp.y * 0.5 + 100.0))
+		add_child(bird)
+		_birds.append(bird)
+		_tween_down(bird)
 
-func _destroy_birds() -> void:
-	if _container:
-		_container.queue_free()
-	_container = null
+func _spawn_one() -> void:
+	var vp := get_viewport_rect().size
+	# Aparece desde el borde derecho con jitter
+	var x := vp.x * 0.5 + randf_range(30.0, 180.0)
+	var bird := _make_bird_marionette()
+	bird.position = Vector2(x, -(vp.y * 0.5 + 100.0))
+	add_child(bird)
+	_birds.append(bird)
+	_tween_down(bird)
+
+func _tween_down(bird: Node2D) -> void:
+	var tw := create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tw.tween_property(bird, "position:y", rest_y, anim_duration)
+
+func _ascend_all() -> void:
+	var vp_hh := get_viewport_rect().size.y * 0.5
+	var target_y := -(vp_hh + 100.0)
+	for bird in _birds:
+		var tw := create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
+		tw.tween_property(bird, "position:y", target_y, anim_duration)
+		tw.tween_callback(_free_bird.bind(bird))
+	_birds.clear()
+
+func _free_bird(bird: Node2D) -> void:
+	if is_instance_valid(bird):
+		bird.queue_free()
+
+# ── Helpers ────────────────────────────────────────────────────────────────────
 
 func _spread_xs(n: int, total_width: float) -> Array:
 	var xs := []
