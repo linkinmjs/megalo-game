@@ -225,7 +225,7 @@ assets/
 
 ---
 
-## Phase 5: User Story 3 — Parallax y fondos (P2)
+## Phase 5: User Story 3 — Parallax y fondos (P2) ✅
 
 **Goal**: El fondo tiene profundidad visual y puede cambiarse con F1.
 
@@ -233,13 +233,24 @@ assets/
 
 ### Implementación para User Story 3
 
-- [ ] T017 [US3] Completar `parallax_manager.gd`: array de texturas de fondo, índice actual, función `next_background()`
-- [ ] T018 [US3] Implementar `next_background()` con `Tween` para cross-fade suave (1.5 segundos)
-- [ ] T019 [US3] Conectar señal `background_change` de `GameManager` a `parallax_manager.next_background()`
-- [ ] T020 [US3] Crear sprites placeholder de colores sólidos para los 3 fondos iniciales en `assets/backgrounds/` (se reemplazarán con arte final)
-- [ ] T021 [US3] Configurar velocidades de scroll y z-index por capa: `sky_far` (scroll=0.2, z=-2), `clouds_mid` (scroll=0.5, z=-1), `elements_front` (scroll=1.2, z=1). El jugador tiene z=0 por defecto — `elements_front` queda visualmente delante de él.
+- [x] T017 [US3] Completar `parallax_manager.gd`: array de texturas de fondo, índice actual, función `next_background()`
+- [x] T018 [US3] Implementar `next_background()` con `Tween` para cross-fade suave (1.5 segundos)
+- [x] T019 [US3] Conectar señal `background_change` de `GameManager` a `parallax_manager.next_background()`
+- [x] T020 [US3] Assets de fondos reales disponibles en `assets/backgrounds/` (sky_clouds, post_apocalypse, nature, city_ruins). Se usan 3 sets: sky_clouds/set_01, sky_clouds/set_03, post_apocalypse/set_01.
+- [x] T021 [US3] Configurar velocidades de scroll y z-index por capa: `sky_far` (scroll=0.2, z=-2), `clouds_mid` (scroll=0.5, z=-1), `elements_front` (scroll=1.2, z=1). El jugador tiene z=0 por defecto — `elements_front` queda visualmente delante de él.
 
 **Checkpoint**: Fondo con parallax visible, F1 cambia el fondo con fade.
+
+> ⚠️ **BUG ABIERTO (2026-02-22):** El fondo aparece solo en la mitad superior de pantalla.
+> La mitad inferior queda gris (color de fondo de Godot).
+> Intentos: `stretch_mode=canvas_items` y `stretch_mode=viewport` — ninguno resolvió.
+> Hipótesis: `get_viewport_rect()` en `_ready()` devuelve tamaño incorrecto antes de que
+> el viewport esté completamente inicializado.
+> **Próximos pasos a probar:**
+> 1. Diferir inicialización al primer frame con flag `_initialized` en `_process()`
+> 2. Usar `ProjectSettings.get_setting("display/window/size/viewport_height")` como fallback
+> 3. Agregar `print(get_viewport_rect())` en `_ready()` para diagnosticar el valor real
+> **Archivos:** `scripts/world/parallax_manager.gd`, `scenes/world/parallax_world.tscn`
 
 ---
 

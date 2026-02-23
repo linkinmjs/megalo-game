@@ -23,9 +23,10 @@ signal burner_deactivated()
 
 # ── Sway de la calavera ────────────────────────────────────────────────────────
 @export_group("Skull Sway")
-@export var skull_sway_factor: float      = 0.08  ## Respuesta lateral (bajo = poco sway)
-@export var skull_sway_damping: float     = 8.0   ## Velocidad de retorno al centro (alto = más rígido)
+@export var skull_sway_factor: float      = 0.08   ## Respuesta lateral (bajo = poco sway)
+@export var skull_sway_damping: float     = 8.0    ## Velocidad de retorno al centro (alto = más rígido)
 @export var skull_vertical_response: float = 0.04  ## Respuesta vertical
+@export var skull_tilt_factor: float      = 0.001  ## Inclinación por vel. lateral (rad por unidad/s); ~10° a vel. máxima
 
 # ── Nodos ──────────────────────────────────────────────────────────────────────
 @onready var visual_root:    Node2D        = $VisualRoot
@@ -78,6 +79,7 @@ func _handle_input(delta: float) -> void:
 	velocity.x = lateral * lateral_speed
 
 # ── Límites de pantalla ────────────────────────────────────────────────────────
+## Coordenadas con cámara DRAG_CENTER: (0,0) = centro del viewport.
 func _apply_screen_limits() -> void:
 	var vp := get_viewport_rect()
 	var hw := vp.size.x * 0.5
@@ -113,6 +115,10 @@ func _update_skull_sway(delta: float) -> void:
 	var target_y := _skull_rest_pos.y - velocity.y * skull_vertical_response
 	skull_pivot.position.x = lerpf(skull_pivot.position.x, target_x, skull_sway_damping * delta)
 	skull_pivot.position.y = lerpf(skull_pivot.position.y, target_y, skull_sway_damping * delta)
+	# Inclinación: adelante (vel.x > 0) → rota en sentido horario (mira levemente abajo)
+	#              atrás  (vel.x < 0) → rota en sentido antihorario (mira levemente arriba)
+	var target_rot := velocity.x * skull_tilt_factor
+	skull_pivot.rotation = lerpf(skull_pivot.rotation, target_rot, skull_sway_damping * delta)
 
 # ── Knockback (llamado por obstáculos) ─────────────────────────────────────────
 func apply_knockback(direction: Vector2, force: float) -> void:
