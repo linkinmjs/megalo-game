@@ -25,7 +25,7 @@ signal burner_deactivated()
 
 # ── Knockback / Hurt ───────────────────────────────────────────────────────────
 @export_group("Knockback")
-@export var hit_freeze_duration: float = 1.5   ## Duración del freeze total tras un golpe (s)
+@export var hit_freeze_duration: float = 0.3   ## Duración del freeze total tras un golpe (s)
 @export var hit_launch_duration: float = 0.4   ## Tiempo post-freeze sin control lateral (s)
 
 # ── Sway de la calavera ────────────────────────────────────────────────────────

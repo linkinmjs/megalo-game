@@ -127,40 +127,40 @@ assets/
 
 **Checkpoint**: ✅ Flujo completo menú → juego → pausa funcionando. Pendiente: selector de idioma (Phase 9).
 
-- [ ] T012m [US6] Crear `scenes/menus/main_menu.tscn`:
+- [x] T012m [US6] Crear `scenes/menus/main_menu.tscn`:
   - Nodo raíz `Control` (pantalla completa)
   - `Label` con el nombre del juego
   - `Button` "Play" y `Button` "Settings"
   - `AudioStreamPlayer` para el sonido de ambientación del menú (bus: SFX)
 
-- [ ] T013m [US6] Crear `scripts/menus/main_menu.gd`:
+- [x] T013m [US6] Crear `scripts/menus/main_menu.gd`:
   - Al entrar a la escena: reproducir ambient audio en loop
   - Botón Play → `GameManager.change_scene("main")` con fade a negro
   - Botón Settings → `GameManager.change_scene("settings_menu")` pasando "main_menu" como escena de retorno
 
-- [ ] T014m [US7] Crear `scenes/menus/settings_menu.tscn`:
+- [x] T014m [US7] Crear `scenes/menus/settings_menu.tscn`:
   - `HSlider` para "Música" (bus Music) y `HSlider` para "SFX" (bus SFX)
   - `Button` "Volver"
 
-- [ ] T015m [US7] Crear `scripts/menus/settings_menu.gd`:
+- [x] T015m [US7] Crear `scripts/menus/settings_menu.gd`:
   - Bind de cada slider a `AudioServer.set_bus_volume_db(bus_index, linear_to_db(value))`
   - Al entrar: leer valores actuales de los buses y setear posición inicial de sliders
   - Persistencia: guardar/cargar volúmenes con `ConfigFile` en `user://settings.cfg`
   - Botón Volver → regresar a escena de origen (main_menu o pause_menu)
 
-- [ ] T016m [US8] Crear `scenes/menus/pause_menu.tscn`:
+- [x] T016m [US8] Crear `scenes/menus/pause_menu.tscn`:
   - `CanvasLayer` (para renderizar sobre el gameplay)
   - Panel semi-transparente de fondo
   - `Button` "Reanudar", `Button` "Configuración", `Button` "Salir al menú"
 
-- [ ] T017m [US8] Crear `scripts/menus/pause_controller.gd`:
+- [x] T017m [US8] Crear `scripts/menus/pause_controller.gd`:
   - Escuchar `ui_cancel` (Escape) en `_unhandled_input`
   - **Pausar**: crear `Tween` que lleva `music_player.volume_db` de 0 a -80 en 1.0s, luego `stream_paused = true` y `get_tree().paused = true`
   - **Reanudar**: `stream_paused = false`, crear `Tween` que lleva `volume_db` de -80 a 0 en 0.5s, `get_tree().paused = false`
   - El nodo `pause_controller` debe tener `process_mode = PROCESS_MODE_ALWAYS` para seguir procesando mientras el árbol está pausado
   - Botón Salir → `get_tree().paused = false`, fade a negro, cargar main_menu
 
-- [ ] T018m Agregar `GameManager.change_scene(scene_name)` como función utilitaria: fade out a negro (`CanvasLayer` + `ColorRect` + `Tween`), cambiar escena, fade in
+- [x] T018m Agregar `GameManager.change_scene(scene_name)` como función utilitaria: fade out a negro (`CanvasLayer` + `ColorRect` + `Tween`), cambiar escena, fade in
 
 **Checkpoint**: El juego arranca en el menú de inicio, Play inicia el juego, Settings ajusta el volumen, Escape pausa con fade de música y reanuda correctamente.
 

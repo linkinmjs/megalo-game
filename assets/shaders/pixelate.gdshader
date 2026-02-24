@@ -6,7 +6,7 @@ shader_type canvas_item;
 
 uniform sampler2D screen_texture: hint_screen_texture, repeat_disable, filter_nearest;
 
-uniform float pixel_size_base: hint_range(1.0, 8.0)  = 3.0;   /// Tamaño de píxel en estado base
+uniform float pixel_size_base: hint_range(1.0, 8.0)  = 1.0;   /// Tamaño de píxel en estado base (1 = sin efecto)
 uniform float pixel_size_max:  hint_range(8.0, 32.0) = 20.0;  /// Tamaño de píxel al máximo potenciado
 
 // Potenciado por el director (F7): 0.0 = base, 1.0 = máximo exagerado
