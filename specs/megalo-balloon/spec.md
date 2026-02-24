@@ -166,10 +166,22 @@ El operador puede triggerear eventos visuales y atmosféricos durante la grabaci
    - **When** el director presiona F4 nuevamente
    - **Then** los pájaros ascienden de vuelta hacia arriba y desaparecen
 
-4. **Scenario**: Spawn manual de obstáculo (F5)
+4. **Scenario**: Control de intensidad de obstáculos (F5) *(deprecated — ver specs/director-obstacle-intensity/spec.md)*
    - **Given** el juego está corriendo
    - **When** el director presiona F5
-   - **Then** aparece inmediatamente un obstáculo aleatorio en pantalla
+   - **Then** ~~aparece inmediatamente un obstáculo aleatorio en pantalla~~
+   - **Then** F5 ahora controla la frecuencia de spawn en 4 escalones (off→lento→medio→rápido→máximo);
+     double-tap resetea a nivel 0 (sin spawn). Ver spec completo en
+     `specs/director-obstacle-intensity/spec.md`.
+
+5. **Scenario**: Control de shaders de pantalla (F6/F7/F8) *(ver specs/director-shader-control/spec.md)*
+   - **Given** el juego está corriendo
+   - **When** el director presiona F8
+   - **Then** el efecto visual de pantalla cambia al siguiente shader de la lista (VHS → aberración → pixelado)
+   - **When** el director presiona F6
+   - **Then** el efecto visual retrocede al shader anterior
+   - **When** el director mantiene F7 presionado
+   - **Then** el shader activo se intensifica gradualmente hasta su máximo exagerado; al soltar, vuelve gradualmente al valor base
 
 ---
 
