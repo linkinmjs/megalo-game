@@ -53,6 +53,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			_shader_index = min(_shader_index + 1, 2)
 			_boost_level = 0.0
 			GameManager.set_active_shader(_shader_index)
+		KEY_9:
+			_boost_level = 0.0
+			GameManager.toggle_shader()
 
 
 func _handle_f5() -> void:

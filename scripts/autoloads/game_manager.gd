@@ -44,6 +44,7 @@ var _changing_scene: bool = false
 # ── Shaders ─────────────────────────────────────────────────────────────────────
 var _shader_materials: Array[ShaderMaterial] = []  ## [0]=VHS, [1]=AberraciónCromática, [2]=Pixelado
 var _shader_index: int = 0                         ## Índice del shader activo
+var _shader_active: bool = true                    ## false = pantalla limpia (toggle con 9)
 var _active_material: ShaderMaterial = null        ## Referencia directa al material activo
 
 func _ready() -> void:
@@ -112,6 +113,12 @@ func set_active_shader(index: int) -> void:
 func apply_shader_boost(t: float) -> void:
 	if _active_material:
 		_active_material.set_shader_parameter("boost", t)
+
+func toggle_shader() -> void:
+	_shader_active = not _shader_active
+	_shader_rect.visible = _shader_active
+	if _shader_active:
+		apply_shader_boost(0.0)  # reaparece en base, sin potenciado
 
 # ── Overlay de transición ──────────────────────────────────────────────────────
 func _setup_transition_overlay() -> void:

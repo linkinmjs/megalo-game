@@ -148,7 +148,27 @@ que el director usará.
 
 ---
 
-## Phase 5 — US3: Verificación de identidad visual
+## Phase 5 — US4: Toggle on/off del shader (tecla 9)
+
+**Objetivo**: 9 apaga el shader completamente; otro press lo reactiva en el mismo shader y en su base.
+
+**Independent Test**: Con VHS visible → presionar 9 → pantalla limpia, sin ningún efecto → presionar 9 → VHS de vuelta. Navegar a aberración cromática, apagar con 9, navegar con 6/8 internamente si se desea, reactivar con 9 → vuelve el shader que estaba al apagar.
+
+- [x] T007 [P] [US4] Agregar `toggle_shader()` a `game_manager.gd`:
+  - Agregar `var _shader_active: bool = true`
+  - `toggle_shader()`: alterna `_shader_rect.visible`; al reactivar (visible = true), llama `apply_shader_boost(0.0)` para resetear el boost
+  → `scripts/autoloads/game_manager.gd`
+
+- [x] T008 [P] [US4] Agregar handler `KEY_9` en `director_controller.gd`:
+  - `_boost_level = 0.0` — resetea la rampa para que al reactivar aparezca en base
+  - `GameManager.toggle_shader()`
+  → `scripts/director/director_controller.gd`
+
+**Checkpoint T007–T008**: Test descrito en Independent Test arriba. Adicionalmente: con shader off, mantener 7 (boost corre internamente sin verse), presionar 9 → shader reaparece en base (no en máximo), confirma que `_boost_level` se resetea.
+
+---
+
+## Phase 6 — US3: Verificación de identidad visual
 
 **Objetivo**: Confirmar que los 3 shaders son visualmente distinguibles y que su
 comportamiento de boost es apropiado.
