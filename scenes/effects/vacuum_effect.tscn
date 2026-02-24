@@ -1,102 +1,50 @@
-[gd_scene load_steps=3 format=3 uid="uid://vacuum_effect"]
+[gd_scene format=3 uid="uid://8k3ew20jbebq"]
 
-[ext_resource type="Script" path="res://scripts/effects/vacuum_effect.gd" id="1"]
+[ext_resource type="Script" uid="uid://dsgbnxhvyavug" path="res://scripts/effects/vacuum_effect.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://djrspiqhqpgxe" path="res://assets/sprites/Vacuum.png" id="2"]
 
-; Gradiente: aparece rápido, visible en el camino, desaparece al llegar a la boca
 [sub_resource type="Gradient" id="Gradient_suction"]
 offsets = PackedFloat32Array(0, 0.2, 1)
 colors = PackedColorArray(0.7, 0.88, 1, 0, 0.7, 0.88, 1, 0.65, 0.7, 0.88, 1, 0)
 
-[node name="VacuumEffect" type="Node2D"]
+[node name="VacuumEffect" type="Node2D" unique_id=1400910544]
 script = ExtResource("1")
 
-; ── Cuerpo principal (C-shape con boca abierta hacia la derecha) ────────────
-[node name="VacuumBody" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(
-	0, -150,
-	-30, -185,
-	-100, -205,
-	-200, -195,
-	-280, -150,
-	-310, -70,
-	-320, 0,
-	-310, 70,
-	-280, 150,
-	-200, 195,
-	-100, 205,
-	-30, 185,
-	0, 150,
-	-20, 100,
-	-45, 30,
-	-50, 0,
-	-45, -30,
-	-20, -100
-)
-color = Color(0.20, 0.13, 0.07, 1)
+[node name="VacuumSprite" type="Sprite2D" parent="." unique_id=2098451077]
+position = Vector2(62, -73)
+scale = Vector2(3, 3)
+texture = ExtResource("2")
 
-; ── Labio superior (prong que enmarca la boca arriba) ────────────────────────
-[node name="UpperLip" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(
-	0, -150,
-	75, -138,
-	98, -162,
-	78, -195,
-	-10, -192,
-	-30, -185
-)
-color = Color(0.30, 0.20, 0.10, 1)
+[node name="SuctionLines" type="Node2D" parent="." unique_id=339782857]
 
-; ── Labio inferior (prong que enmarca la boca abajo) ─────────────────────────
-[node name="LowerLip" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(
-	0, 150,
-	75, 138,
-	98, 162,
-	78, 195,
-	-10, 192,
-	-30, 185
-)
-color = Color(0.30, 0.20, 0.10, 1)
-
-; ── Líneas de succión (onduladas vía script) ──────────────────────────────────
-[node name="SuctionLines" type="Node2D" parent="."]
-
-[node name="Line1" type="Line2D" parent="SuctionLines"]
+[node name="Line1" type="Line2D" parent="SuctionLines" unique_id=878333777]
 points = PackedVector2Array(80, -90, 250, -102, 450, -122, 660, -152, 920, -178)
 width = 4.5
-default_color = Color(0.55, 0.82, 1.0, 0.55)
+default_color = Color(0.55, 0.82, 1, 0.55)
 
-[node name="Line2" type="Line2D" parent="SuctionLines"]
+[node name="Line2" type="Line2D" parent="SuctionLines" unique_id=1354498892]
 points = PackedVector2Array(80, -38, 250, -43, 450, -52, 660, -63, 920, -72)
 width = 4.5
-default_color = Color(0.55, 0.82, 1.0, 0.55)
+default_color = Color(0.55, 0.82, 1, 0.55)
 
-[node name="Line3" type="Line2D" parent="SuctionLines"]
+[node name="Line3" type="Line2D" parent="SuctionLines" unique_id=271326448]
 points = PackedVector2Array(80, 0, 250, 0, 450, 4, 660, 7, 920, 9)
 width = 5.0
-default_color = Color(0.55, 0.82, 1.0, 0.60)
+default_color = Color(0.55, 0.82, 1, 0.6)
 
-[node name="Line4" type="Line2D" parent="SuctionLines"]
+[node name="Line4" type="Line2D" parent="SuctionLines" unique_id=1316605819]
 points = PackedVector2Array(80, 38, 250, 43, 450, 52, 660, 63, 920, 72)
 width = 4.5
-default_color = Color(0.55, 0.82, 1.0, 0.55)
+default_color = Color(0.55, 0.82, 1, 0.55)
 
-[node name="Line5" type="Line2D" parent="SuctionLines"]
+[node name="Line5" type="Line2D" parent="SuctionLines" unique_id=1482852362]
 points = PackedVector2Array(80, 90, 250, 102, 450, 122, 660, 152, 920, 178)
 width = 4.5
-default_color = Color(0.55, 0.82, 1.0, 0.55)
+default_color = Color(0.55, 0.82, 1, 0.55)
 
-; ── Partículas de succión — dos emisores en cono desde las esquinas del viewport ─
-; Emisores en coordenadas LOCALES (local_coords=true) para que sigan la aspiradora.
-; Vacío activo en world x=-580. Local x=1280 → world x=700 (justo fuera del borde derecho).
-; Local y=±380 cubre las esquinas del viewport (720/2=360 + margen).
-; Direcciones calculadas hacia la boca (~local x=50, y=0):
-;   Upper: normalize(50-1280, 0-(-380)) = normalize(-1230, 380) ≈ (-0.956, 0.295)
-;   Lower: normalize(-1230, -380) ≈ (-0.956, -0.295)
-; Lifetime 1.65s × avg 780px/s ≈ 1287 unidades = distancia exacta a la boca → fade justo al llegar.
-[node name="SuctionParticles" type="Node2D" parent="."]
+[node name="SuctionParticles" type="Node2D" parent="." unique_id=712400838]
 
-[node name="SuctionParticlesUpper" type="CPUParticles2D" parent="SuctionParticles"]
+[node name="SuctionParticlesUpper" type="CPUParticles2D" parent="SuctionParticles" unique_id=1739321110]
 position = Vector2(1280, -380)
 emitting = false
 amount = 60
@@ -112,7 +60,7 @@ scale_amount_min = 1.5
 scale_amount_max = 3.5
 color_ramp = SubResource("Gradient_suction")
 
-[node name="SuctionParticlesLower" type="CPUParticles2D" parent="SuctionParticles"]
+[node name="SuctionParticlesLower" type="CPUParticles2D" parent="SuctionParticles" unique_id=1858675476]
 position = Vector2(1280, 380)
 emitting = false
 amount = 60

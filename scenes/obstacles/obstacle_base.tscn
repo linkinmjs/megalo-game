@@ -9,8 +9,7 @@ size = Vector2(80, 80)
 script = ExtResource("1")
 knockback_force = 325.0
 
-[node name="Polygon2D" type="Polygon2D" parent="." unique_id=1965036692]
-polygon = PackedVector2Array(-40, -40, 40, -40, 40, 40, -40, 40)
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1965036692]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1613339565]
 shape = SubResource("RectangleShape2D_1")

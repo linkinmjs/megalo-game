@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://jhiv4dx35msw"]
+
+[ext_resource type="Script" path="res://scripts/effects/wind_effect.gd" id="1"]
+
+[node name="WindEffect" type="Node2D" unique_id=231213811]
+script = ExtResource("1")
+
+[node name="WindParticles" type="CPUParticles2D" parent="." unique_id=1463270644]
+emitting = false
+amount = 200
+lifetime_randomness = 0.4
+emission_shape = 3
+emission_rect_extents = Vector2(1, 1)
+spread = 12.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 500.0
+initial_velocity_max = 750.0
+scale_amount_min = 2.0
+scale_amount_max = 5.0
+color = Color(0.88, 0.95, 1, 0.78)

@@ -10,11 +10,13 @@ extends Node2D
 @export var anim_duration:  float = 1.0     ## Duración de descenso/ascenso (s)
 @export var spawn_interval: float = 1.2     ## Segundos entre spawns individuales
 
-var _active:      bool              = false
-var _spawn_timer: float             = 0.0
-var _birds:       Array[Node2D]     = []  ## Pájaros activos en escena
+var _active:       bool          = false
+var _spawn_timer:  float         = 0.0
+var _birds:        Array[Node2D] = []  ## Pájaros activos en escena
+var _bird_texture: Texture2D     = null
 
 func _ready() -> void:
+	_bird_texture = load("res://assets/sprites/Bird.png")
 	GameManager.birds_toggled.connect(_on_birds_toggled)
 
 func _process(delta: float) -> void:
@@ -95,15 +97,11 @@ func _spread_xs(n: int, total_width: float) -> Array:
 
 func _make_bird_marionette() -> Node2D:
 	var root := Node2D.new()
-	# Silueta del pájaro en vuelo (chevron/V abierta)
-	var bird := Polygon2D.new()
-	bird.polygon = PackedVector2Array([
-		Vector2(-14, 5), Vector2(-7, 0), Vector2(0, -4),
-		Vector2(7, 0),   Vector2(14, 5),
-		Vector2(9, 7),   Vector2(0, 3),  Vector2(-9, 7)
-	])
-	bird.color = Color(0.08, 0.08, 0.10, 0.90)
-	root.add_child(bird)
+	# Sprite del pájaro steampunk
+	var sprite := Sprite2D.new()
+	sprite.texture = _bird_texture
+	sprite.scale   = Vector2(0.3, 0.3)
+	root.add_child(sprite)
 	# Hilo de marioneta: desde el pájaro hacia arriba, 700px
 	var thread := Line2D.new()
 	thread.add_point(Vector2(0, 0))
