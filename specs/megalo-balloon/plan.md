@@ -319,7 +319,7 @@ BACKGROUND_SETS = [{"textures": [path0, path1, ..., ""]}]  ← índice = slot de
 - [x] T027 [US2] Crear `scripts/obstacles/obstacle_spawner.gd`: timer de cooldown (configurable), posición Y aleatoria dentro de márgenes, alternancia aleatoria entre tipos de obstáculos
 - [x] T028 [US2] Crear `scenes/world/obstacle_spawner.tscn` con `Timer` y lógica de spawn
 - [x] T029 [US2] Animación squish/stretch ya implementada en `balloon_controller.gd` (apply_knockback → _play_squish, Tween sobre VisualRoot.scale)
-- [x] T030 [US2] F5 del director emite `event_director("spawn_obstacle")` → `obstacle_spawner.gd` escucha `GameManager.event_director` y llama `_spawn_random()`
+- [x] T030 [US2] ~~F5 del director emite `event_director("spawn_obstacle")`~~ → **reemplazado por director-obstacle-intensity** (escalones de frecuencia con double-tap reset)
 
 **Checkpoint**: Obstáculos aparecen, cruzan la pantalla y empujan el globo al contactar.
 

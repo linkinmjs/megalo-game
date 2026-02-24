@@ -122,7 +122,7 @@ func _on_intensity_changed(level: int) -> void:
 
 ## Phase 1 — Señal nueva en GameManager
 
-- [ ] T-OI-001 [P] Agregar `signal obstacle_intensity_changed(level: int)` a `game_manager.gd` → `scripts/autoloads/game_manager.gd`
+- [x] T-OI-001 [P] Agregar `signal obstacle_intensity_changed(level: int)` a `game_manager.gd` → `scripts/autoloads/game_manager.gd`
 
 ---
 
@@ -132,7 +132,7 @@ func _on_intensity_changed(level: int) -> void:
 
 **Independent Test**: Correr juego → verificar que no aparece ningún obstáculo automáticamente → presionar F5 → aparece uno de inmediato y luego cada ~6s → F5 × 3 veces más → frecuencia aumenta notablemente en cada press.
 
-- [ ] T-OI-002 [P] [US1, US2, US3] Actualizar `director_controller.gd`:
+- [x] T-OI-002 [P] [US1, US2, US3] Actualizar `director_controller.gd`:
   - Agregar `const INTENSITY_INTERVALS: Array[float] = [6.0, 3.0, 1.5, 0.75]`
   - Agregar `@export var double_tap_window: float = 0.5`
   - Agregar `var _intensity_level: int = 0` y `var _last_f5_press: float = -1.0`
@@ -149,7 +149,7 @@ func _on_intensity_changed(level: int) -> void:
 
 **Independent Test**: Correr juego → ningún obstáculo aparece solo → F5 → obstáculos empiezan → double-tap F5 → dejan de aparecer.
 
-- [ ] T-OI-003 [P] [US1, US2, US3] Actualizar `obstacle_spawner.gd`:
+- [x] T-OI-003 [P] [US1, US2, US3] Actualizar `obstacle_spawner.gd`:
   - Agregar `const INTENSITY_INTERVALS: Array[float] = [6.0, 3.0, 1.5, 0.75]`
   - En `_ready()`: **eliminar** `_timer.start()` (el timer empieza parado)
   - En `_ready()`: conectar `GameManager.obstacle_intensity_changed.connect(_on_intensity_changed)`

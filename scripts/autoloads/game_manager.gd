@@ -8,6 +8,7 @@ signal background_change()
 signal wind_toggled(active: bool)
 signal rain_toggled(active: bool)
 signal birds_toggled(active: bool)
+signal obstacle_intensity_changed(level: int)
 
 # ── Estado compartido ──────────────────────────────────────────────────────────
 ## Referencia al AudioStreamPlayer de música. La asigna scenes/main.tscn al cargar.

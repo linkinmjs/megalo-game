@@ -1,29 +1,35 @@
 class_name ObstacleSpawner
 extends Node2D
-## Genera obstáculos automáticamente en intervalos regulares y en manual (F5).
+## Genera obstáculos en intervalos controlados por el Director (F5).
+## El timer empieza parado; se activa y configura vía obstacle_intensity_changed.
 ## Posiciona cada obstáculo en el borde de pantalla opuesto a su dirección de movimiento.
 
-@export var spawn_cooldown: float  = 4.0    ## Tiempo entre spawns automáticos (s)
-@export var y_range: float         = 240.0  ## Mitad del rango vertical de aparición (px)
-@export var ashtray_scene: PackedScene      ## Escena del cenicero (izq→der)
-@export var bottle_scene: PackedScene       ## Escena del frasco (der→izq)
+## Intervalos de spawn por nivel de intensidad (índice = nivel-1)
+const INTENSITY_INTERVALS: Array[float] = [6.0, 3.0, 1.5, 0.75]
+
+@export var y_range: float = 240.0  ## Mitad del rango vertical de aparición (px)
+@export var ashtray_scene: PackedScene  ## Escena del cenicero (izq→der)
+@export var bottle_scene: PackedScene   ## Escena del frasco (der→izq)
 
 const _SPAWN_X: float = 700.0  ## Posición X de spawn (fuera de pantalla)
 
 @onready var _timer: Timer = $Timer
 
 func _ready() -> void:
-	_timer.wait_time = spawn_cooldown
 	_timer.timeout.connect(_on_timer_timeout)
-	_timer.start()
-	GameManager.event_director.connect(_on_director_event)
+	# El timer empieza parado — solo arranca cuando el director activa el spawn
+	GameManager.obstacle_intensity_changed.connect(_on_intensity_changed)
 
 func _on_timer_timeout() -> void:
 	_spawn_random()
 
-func _on_director_event(event_name: String) -> void:
-	if event_name == "spawn_obstacle":
-		_spawn_random()
+func _on_intensity_changed(level: int) -> void:
+	if level == 0:
+		_timer.stop()
+	else:
+		_timer.wait_time = INTENSITY_INTERVALS[level - 1]
+		_timer.start()
+		_spawn_random()  # spawn inmediato como confirmación visual
 
 func _spawn_random() -> void:
 	var scenes: Array = [ashtray_scene, bottle_scene]
