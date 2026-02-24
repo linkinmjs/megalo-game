@@ -84,9 +84,9 @@ Agrega `uniform float boost = 0.0` que amplifica internamente:
 **Propósito**: Crear los 3 archivos `.gdshader` con sus uniforms de boost. Sin estos,
 `GameManager` no puede crear los materiales.
 
-- [ ] T001 [P] [US3] Agregar `uniform float boost` a `vhs_effect.gdshader` → amplifica glitch_frequency/strength/chromatic_spike internamente con `mix()` → `assets/shaders/vhs_effect.gdshader`
-- [ ] T002 [P] [US3] Crear `assets/shaders/chromatic_aberration.gdshader` — split RGB controlado por `boost`, screen_texture hint, `separation_base` + `separation_max` → `assets/shaders/chromatic_aberration.gdshader`
-- [ ] T003 [P] [US3] Crear `assets/shaders/pixelate.gdshader` — pixelado con `pixel_size` calculado desde `boost` + `SCREEN_PIXEL_SIZE` → `assets/shaders/pixelate.gdshader`
+- [x] T001 [P] [US3] Agregar `uniform float boost` a `vhs_effect.gdshader` → amplifica glitch_frequency/strength/chromatic_spike internamente con `mix()` → `assets/shaders/vhs_effect.gdshader`
+- [x] T002 [P] [US3] Crear `assets/shaders/chromatic_aberration.gdshader` — split RGB controlado por `boost`, screen_texture hint, `separation_base` + `separation_max` → `assets/shaders/chromatic_aberration.gdshader`
+- [x] T003 [P] [US3] Crear `assets/shaders/pixelate.gdshader` — pixelado con `pixel_size` calculado desde `boost` + `SCREEN_PIXEL_SIZE` → `assets/shaders/pixelate.gdshader`
 
 **Checkpoint T001–T003**: Abrir el shader en el editor de Godot → asignar manualmente a un ColorRect → mover el uniform `boost` en el Inspector → verificar que el efecto cambia visualmente de sutil a exagerado.
 
@@ -97,7 +97,7 @@ Agrega `uniform float boost = 0.0` que amplifica internamente:
 **Propósito**: Extender `GameManager` para mantener los 3 materiales y exponer la API
 que el director usará.
 
-- [ ] T004 [P] [US1, US2, US3] Ampliar `game_manager.gd`:
+- [x] T004 [P] [US1, US2, US3] Ampliar `game_manager.gd`:
   - Reemplazar la carga de VHS hardcodeada por un array `_shader_materials: Array[ShaderMaterial]` con los 3 materiales
   - Agregar `_shader_index: int = 0`
   - Agregar `signal shader_changed(index: int)`
@@ -116,7 +116,7 @@ que el director usará.
 
 **Independent Test**: Abrir `scenes/main.tscn` → presionar F8 → verificar que el efecto VHS desaparece y aparece la aberración cromática → presionar F8 → aparece el pixelado → presionar F8 → nada cambia → presionar F6 → vuelve a aberración → F6 → VHS → F6 → nada.
 
-- [ ] T005 [P] [US1] Ampliar `director_controller.gd`:
+- [x] T005 [P] [US1] Ampliar `director_controller.gd`:
   - Agregar `_shader_index: int = 0` (mirror local del índice)
   - Handler `KEY_F6`: `_shader_index = max(_shader_index - 1, 0)` → `GameManager.set_active_shader(_shader_index)`
   - Handler `KEY_F8`: `_shader_index = min(_shader_index + 1, 2)` → `GameManager.set_active_shader(_shader_index)`
@@ -133,7 +133,7 @@ que el director usará.
 
 **Independent Test**: Abrir `scenes/main.tscn` → con cualquier shader activo, mantener F7 ~2s → verificar que el efecto se exagera progresivamente → soltar → el efecto vuelve suavemente al estado base en ≥ 0.5s.
 
-- [ ] T006 [P] [US2] Ampliar `director_controller.gd`:
+- [x] T006 [P] [US2] Ampliar `director_controller.gd`:
   - Agregar `@export var boost_rise_speed: float = 0.7` y `@export var boost_fall_speed: float = 2.0`
   - Agregar `var _boost_level: float = 0.0`
   - Agregar `func _process(delta: float)`:

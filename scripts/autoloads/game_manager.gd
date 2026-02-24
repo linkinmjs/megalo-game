@@ -1,6 +1,6 @@
 extends Node
 ## Singleton global del juego.
-## Gestiona señales entre sistemas, transiciones de escena y el overlay VHS.
+## Gestiona señales entre sistemas, transiciones de escena y el overlay de shaders.
 
 # ── Señales globales ───────────────────────────────────────────────────────────
 signal event_director(event_name: String)
@@ -9,6 +9,7 @@ signal wind_toggled(active: bool)
 signal rain_toggled(active: bool)
 signal birds_toggled(active: bool)
 signal obstacle_intensity_changed(level: int)
+signal shader_changed(index: int)
 
 # ── Estado compartido ──────────────────────────────────────────────────────────
 ## Referencia al AudioStreamPlayer de música. La asigna scenes/main.tscn al cargar.
@@ -36,31 +37,39 @@ const SCENES: Dictionary = {
 # ── Nodos internos ─────────────────────────────────────────────────────────────
 var _overlay: ColorRect
 var _transition_layer: CanvasLayer
-var _vhs_layer: CanvasLayer
-var _vhs_rect: ColorRect
+var _shader_layer: CanvasLayer
+var _shader_rect: ColorRect
 var _changing_scene: bool = false
 
+# ── Shaders ─────────────────────────────────────────────────────────────────────
+var _shader_materials: Array[ShaderMaterial] = []  ## [0]=VHS, [1]=AberraciónCromática, [2]=Pixelado
+var _shader_index: int = 0                         ## Índice del shader activo
+var _active_material: ShaderMaterial = null        ## Referencia directa al material activo
+
 func _ready() -> void:
-	_setup_vhs_layer()
+	_setup_shader_layer()
 	_setup_transition_overlay()
 
-# ── VHS ────────────────────────────────────────────────────────────────────────
-func _setup_vhs_layer() -> void:
-	_vhs_layer = CanvasLayer.new()
-	_vhs_layer.layer = 50
-	_vhs_layer.process_mode = Node.PROCESS_MODE_ALWAYS
-	add_child(_vhs_layer)
+# ── Shader layer ────────────────────────────────────────────────────────────────
+func _setup_shader_layer() -> void:
+	_shader_layer = CanvasLayer.new()
+	_shader_layer.layer = 50
+	_shader_layer.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(_shader_layer)
 
-	_vhs_rect = ColorRect.new()
-	_vhs_rect.color = Color(1.0, 1.0, 1.0, 1.0)
-	_vhs_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_vhs_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_vhs_layer.add_child(_vhs_rect)
+	_shader_rect = ColorRect.new()
+	_shader_rect.color = Color(1.0, 1.0, 1.0, 1.0)
+	_shader_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shader_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_shader_layer.add_child(_shader_rect)
 
-	var shader := load("res://assets/shaders/vhs_effect.gdshader") as Shader
-	if shader:
+	_shader_materials.resize(3)
+
+	# Material 0 — VHS (parámetros desde @export para ajuste desde Inspector)
+	var vhs_shader := load("res://assets/shaders/vhs_effect.gdshader") as Shader
+	if vhs_shader:
 		var mat := ShaderMaterial.new()
-		mat.shader = shader
+		mat.shader = vhs_shader
 		mat.set_shader_parameter("effect_intensity",   vhs_effect_intensity)
 		mat.set_shader_parameter("glitch_frequency",   vhs_glitch_frequency)
 		mat.set_shader_parameter("glitch_strength",    vhs_glitch_strength)
@@ -68,7 +77,41 @@ func _setup_vhs_layer() -> void:
 		mat.set_shader_parameter("chromatic_spike",    vhs_chromatic_spike)
 		mat.set_shader_parameter("noise_strength",     vhs_noise_strength)
 		mat.set_shader_parameter("tape_wave",          vhs_tape_wave)
-		_vhs_rect.material = mat
+		_shader_materials[0] = mat
+
+	# Material 1 — Aberración cromática
+	var ca_shader := load("res://assets/shaders/chromatic_aberration.gdshader") as Shader
+	if ca_shader:
+		var mat := ShaderMaterial.new()
+		mat.shader = ca_shader
+		_shader_materials[1] = mat
+
+	# Material 2 — Pixelado
+	var px_shader := load("res://assets/shaders/pixelate.gdshader") as Shader
+	if px_shader:
+		var mat := ShaderMaterial.new()
+		mat.shader = px_shader
+		_shader_materials[2] = mat
+
+	# Aplicar shader inicial (VHS, índice 0)
+	_active_material = _shader_materials[0]
+	if _active_material:
+		_shader_rect.material = _active_material
+
+# ── API pública de shaders ──────────────────────────────────────────────────────
+func set_active_shader(index: int) -> void:
+	if index == _shader_index:
+		return
+	_shader_index = index
+	_active_material = _shader_materials[index]
+	if _active_material:
+		_active_material.set_shader_parameter("boost", 0.0)
+		_shader_rect.material = _active_material
+	shader_changed.emit(index)
+
+func apply_shader_boost(t: float) -> void:
+	if _active_material:
+		_active_material.set_shader_parameter("boost", t)
 
 # ── Overlay de transición ──────────────────────────────────────────────────────
 func _setup_transition_overlay() -> void:
