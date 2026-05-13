@@ -4,7 +4,9 @@
       "Bash(cd:*)",
       "Bash(cd C:\\\\Users\\\\Mauri\\\\Godot\\\\Proyectos\\\\megalo-claude:*)",
       "Bash(python3:*)",
-      "WebFetch(domain:godotshaders.com)"
+      "WebFetch(domain:godotshaders.com)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Mauri\\\\Godot\\\\Proyectos\\\\megalo-claude\" -Filter \"project.godot\" -Recurse)",
+      "Bash(Select-Object FullName)"
     ]
   }
 }

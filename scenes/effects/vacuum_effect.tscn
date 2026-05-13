@@ -56,8 +56,8 @@ spread = 28.0
 gravity = Vector2(0, 0)
 initial_velocity_min = 680.0
 initial_velocity_max = 880.0
-scale_amount_min = 1.5
-scale_amount_max = 3.5
+scale_amount_min = 10.0
+scale_amount_max = 10.0
 color_ramp = SubResource("Gradient_suction")
 
 [node name="SuctionParticlesLower" type="CPUParticles2D" parent="SuctionParticles" unique_id=1858675476]
@@ -72,6 +72,6 @@ spread = 28.0
 gravity = Vector2(0, 0)
 initial_velocity_min = 680.0
 initial_velocity_max = 880.0
-scale_amount_min = 1.5
-scale_amount_max = 3.5
+scale_amount_min = 10.0
+scale_amount_max = 10.0
 color_ramp = SubResource("Gradient_suction")
